@@ -1,0 +1,115 @@
+package net.tiffit.realmnetapi.net.packet.in;
+
+import net.tiffit.realmnetapi.assets.xml.GameObject;
+import net.tiffit.realmnetapi.assets.xml.Projectile;
+import net.tiffit.realmnetapi.assets.xml.XMLLoader;
+import net.tiffit.realmnetapi.map.object.RObject;
+import net.tiffit.realmnetapi.map.object.RotMGEntityList;
+import net.tiffit.realmnetapi.map.projectile.ProjectileState;
+import net.tiffit.realmnetapi.net.RealmNetworker;
+import net.tiffit.realmnetapi.net.packet.RotMGPacketIn;
+import net.tiffit.realmnetapi.util.ShootAckCounter;
+import net.tiffit.realmnetapi.util.math.Vec2f;
+
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.util.List;
+
+public class EnemyShootPacketIn extends RotMGPacketIn {
+
+    public short bulletId;
+    public int ownerId;
+    public int bulletType;
+    public Vec2f startingPos;
+    public float angle;
+    public short damage;
+    public int numShots;
+    public float angleIncr;
+
+    @Override
+    public void read(DataInputStream in) throws IOException {
+        bulletId = in.readShort();
+        ownerId = in.readInt();
+        bulletType = in.readUnsignedByte();
+        startingPos = readWorldPosData(in);
+        angle = in.readFloat();
+        damage = in.readShort();
+        if(in.available() > 0){
+            numShots = in.readUnsignedByte();
+            angleIncr = in.readFloat();
+        }else{
+            numShots = 1;
+            angleIncr = 0;
+        }
+    }
+
+    @Override
+    public void handle(RealmNetworker net) throws IOException {
+        RotMGEntityList list = net.map.getEntityList();
+        if(!list.has(ownerId) || list.get(ownerId).isDead()){
+            ShootAckCounter.addInvalid();
+            return;
+        }
+        RObject robj = list.get(ownerId);
+        ShootAckCounter.add();
+        ProjectileState[] pendingProjs = new ProjectileState[numShots];
+        for (int i = 0; i < numShots; i++) {
+            ProjectileState state = new ProjectileState();
+            state.bulletId = bulletId + i;
+            state.ownerType = robj.getGameObject().type;
+            state.ownerId = ownerId;
+            state.bulletType = bulletType;
+            state.startX = startingPos.x();
+            state.startY = startingPos.y();
+            state.angle = angle + i * angleIncr;
+            state.damage = damage;
+            state.numShots = (byte)numShots;
+            state.angleInc = angleIncr;
+            state.team = ProjectileState.ProjectileTeam.ENEMY;
+            RObject shooter = list.get(ownerId);
+            if (shooter != null) {
+                Projectile proj = null;
+                List<Projectile> projList = shooter.getGameObject().projectiles;
+                for (Projectile p : projList) {
+                    if (p.id == bulletType) {
+                        proj = p;
+                        break;
+                    }
+                }
+                if(proj == null && projList.size() > bulletType){
+                    proj = projList.get(bulletType);
+                }
+                if (proj != null) {
+                    state.proj = proj;
+                    String objId = proj.objectId;
+                    state.obj = null;
+                    for (GameObject obj : XMLLoader.OBJECTS.values()) {
+                        if (obj.id.equals(objId)) {
+                            state.obj = obj;
+                            break;
+                        }
+                    }
+                    pendingProjs[i] = state;
+                    //RProjectile.create(net, state);
+                } else {
+                    System.out.println("Unknown bullet type " + bulletType + " for enemy " + shooter.getGameObject().id);
+                }
+            }
+        }
+        ShootAckCounter.addPending(pendingProjs);
+    }
+
+    @Override
+    public String getExtraInfo() {
+        return "{" +
+                "bulletId=" + bulletId +
+                ", ownerId=" + ownerId +
+                ", bulletType=" + bulletType +
+                ", startingPos=" + startingPos +
+                ", angle=" + angle +
+                ", damage=" + damage +
+                ", numShots=" + numShots +
+                ", angleIncr=" + angleIncr +
+                '}';
+    }
+}
