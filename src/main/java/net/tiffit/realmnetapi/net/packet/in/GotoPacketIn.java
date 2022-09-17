@@ -25,17 +25,19 @@ public class GotoPacketIn extends RotMGPacketIn {
 
     @Override
     public void handle(RealmNetworker net) throws IOException {
-        net.send(new GotoAckPacketOut(RealmNetworker.getTime()));
-        if (objectId == net.map.getObjectId()) {
-            net.map.getPlayerPos().setPos(position);
-        } else {
-            RObject obj = net.map.getEntityList().get(objectId);
-            if (obj != null) {
-                GameObjectState state = obj.getState();
-                state.position = position;
-                obj.onGoto(position.x(), position.y(), RealmNetworker.getTime());
+        net.ackHandler.add(() -> {
+            net.send(new GotoAckPacketOut(RealmNetworker.getTime()));
+            if (objectId == net.map.getObjectId()) {
+                net.map.getPlayerPos().setPos(position);
+            } else {
+                RObject obj = net.map.getEntityList().get(objectId);
+                if (obj != null) {
+                    GameObjectState state = obj.getState();
+                    state.position = position;
+                    obj.onGoto(position.x(), position.y(), RealmNetworker.getTime());
+                }
             }
-        }
+        });
     }
 
     @Override

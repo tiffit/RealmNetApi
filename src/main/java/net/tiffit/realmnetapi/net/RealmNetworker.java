@@ -3,6 +3,7 @@ package net.tiffit.realmnetapi.net;
 import lombok.SneakyThrows;
 import net.tiffit.realmnetapi.auth.AccessToken;
 import net.tiffit.realmnetapi.map.RMap;
+import net.tiffit.realmnetapi.net.ack.AckHandler;
 import net.tiffit.realmnetapi.net.crypto.RC4;
 import net.tiffit.realmnetapi.net.packet.RotMGPacketIn;
 import net.tiffit.realmnetapi.net.packet.RotMGPacketOut;
@@ -15,8 +16,6 @@ import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class RealmNetworker {
 
@@ -25,6 +24,7 @@ public class RealmNetworker {
 
     public RMap map;
     public final MoveRecords records = new MoveRecords();
+    public final AckHandler ackHandler = new AckHandler(this);
     public int lastUpdate = 0;
 
     private Socket socket;
@@ -41,8 +41,6 @@ public class RealmNetworker {
 
     private static final long startTime = System.currentTimeMillis();
     private static long lastTick = startTime;
-    public final ReentrantLock LOCK = new ReentrantLock();
-    public final Condition updateCondition = LOCK.newCondition();
     public NetworkLogger logger;
     public Updater updater;
 

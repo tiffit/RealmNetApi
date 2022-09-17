@@ -32,6 +32,8 @@ public class AoePacketIn extends RotMGPacketIn {
 
     @Override
     public void handle(RealmNetworker net) throws IOException {
-        net.send(new AoeAckPacketOut(RealmNetworker.getTime(), net.map.getPlayerPos().getPos()));
+        net.ackHandler.add(() -> {
+            net.send(new AoeAckPacketOut(RealmNetworker.getTime(), net.map.getPlayerPos().getPos()));
+        });
     }
 }

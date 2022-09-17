@@ -121,7 +121,8 @@ public class RProjectile {
                         hitState.setStat(StatType.HP, hitState.getHP() - damage);
                         map.getEntityList().get(hitState.objectId).mergeState(hitState);
                     }else{
-                        map.getEntityList().remove(hitState.objectId).kill();
+                        hitState.setStat(StatType.HP, 1);
+                        map.getEntityList().get(hitState.objectId).mergeState(hitState);
                     }
                 } else if (!state.proj.multiHit) {
                     //net.logger.write("packet", "2: " + hit.b().objectId + ", " + hit.b().getGameObject().id);

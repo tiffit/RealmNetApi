@@ -11,7 +11,6 @@ import net.tiffit.realmnetapi.map.object.RObject;
 import net.tiffit.realmnetapi.net.RealmNetworker;
 import net.tiffit.realmnetapi.net.packet.RotMGPacketIn;
 import net.tiffit.realmnetapi.net.packet.out.UpdateAckPacketOut;
-import net.tiffit.realmnetapi.util.ShootAckCounter;
 import net.tiffit.realmnetapi.util.math.Vec2f;
 import net.tiffit.realmnetapi.util.math.Vec2i;
 
@@ -54,59 +53,41 @@ public class UpdatePacketIn extends RotMGPacketIn {
 
     @Override
     public void handle(RealmNetworker net) throws IOException {
-        ShootAckCounter.ack(net, RealmNetworker.getTime());
-//        for (Integer shootAck : ShootAckCounter.getValues()) {
-//            if(shootAck == -1){
-//                net.send(new ShootAckPacketOut(-1, (short)1));
-//            }else{
-//                net.send(new ShootAckPacketOut(RealmNetworker.getTime(), shootAck.shortValue()));
-//            }
-//        }
-//        if(net.map.getShootCount().get() > 0){
-//            int shootCount = net.map.getShootCount().getAndSet(0);
-//            net.send(new ShootAckPacketOut(RealmNetworker.getTime(), (short)shootCount));
-//        }
-        Vec2f currentPlayerPos = net.map.getPlayerPos().getPos();
-        if(currentPlayerPos.isZero()){
-            net.records.clear(RealmNetworker.getTime());
-            net.records.addRecord(RealmNetworker.getTime(), playerPos.x(), playerPos.y());
-        }
-        if(!playerPos.isZero() && currentPlayerPos.distanceSqr(playerPos) > 25){
-            net.map.getPlayerPos().setPos(playerPos);
-        }
-        net.map.setTiles(tiles);
+        net.ackHandler.add(() -> {
+            Vec2f currentPlayerPos = net.map.getPlayerPos().getPos();
+            if(currentPlayerPos.isZero()){
+                net.records.clear(RealmNetworker.getTime());
+                net.records.addRecord(RealmNetworker.getTime(), playerPos.x(), playerPos.y());
+            }
+            if(!playerPos.isZero() && currentPlayerPos.distanceSqr(playerPos) > 25){
+                net.map.getPlayerPos().setPos(playerPos);
+            }
+            net.map.setTiles(tiles);
 
-        for (GameObjectState state : objects) {
-            GameObject go = XMLLoader.OBJECTS.get(state.type);
-            if(net.map.getObjectId() == state.objectId){
-                net.map.setSelfState(state);
-                EventHandler.executeEvent(new PlayerDataEvent(state));
-            }else {
-                if (go != null) {
-                    RObject obj = Hooks.RObjectFunc.apply(state, net.map);
-                    net.map.getEntityList().set(state.objectId, obj);
-                }else{
-                    System.out.println("Unknown object type " + state.type);
+            for (GameObjectState state : objects) {
+                GameObject go = XMLLoader.OBJECTS.get(state.type);
+                if(net.map.getObjectId() == state.objectId){
+                    net.map.setSelfState(state);
+                    EventHandler.executeEvent(new PlayerDataEvent(state));
+                }else {
+                    if (go != null) {
+                        RObject obj = Hooks.RObjectFunc.apply(state, net.map);
+                        net.map.getEntityList().set(state.objectId, obj);
+                    }else{
+                        System.out.println("Unknown object type " + state.type);
+                    }
                 }
             }
-        }
 
-        for (int id : drops) {
-            RObject obj = net.map.getEntityList().get(id);
-            if(obj != null){
-                obj.kill();
-                net.map.getEntityList().remove(id);
+            for (int id : drops) {
+                RObject obj = net.map.getEntityList().get(id);
+                if(obj != null){
+                    obj.kill();
+                    net.map.getEntityList().remove(id);
+                }
             }
-        }
-        try {
-            net.LOCK.lock();
-            net.updateCondition.await();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }finally {
-            net.LOCK.unlock();
-        }
-        net.send(new UpdateAckPacketOut());
+            net.send(new UpdateAckPacketOut());
+        });
     }
 
     @Override

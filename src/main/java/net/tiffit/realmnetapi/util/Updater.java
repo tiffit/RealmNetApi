@@ -19,6 +19,8 @@ import java.util.List;
 
 public class Updater implements Runnable {
 
+
+
     private RealmNetworker net;
 
     public int attack_period = 0;
@@ -35,12 +37,7 @@ public class Updater implements Runnable {
             RealmNetworker.updateTime();
             if(net.map != null && net.map.getPlayerPos() != null) {
                 //net.logger.write("packet", "Update Start - " + RealmNetworker.getTime());
-                //Create Projectiles
-                try {
-                    createProjectiles();
-                }catch(Exception ex){
-                    ex.printStackTrace();
-                }
+
                 //Update Entities
                 try {
                     net.map.getEntityList().getAll(rEntity -> true).forEach(RObject::updateLoop);
@@ -65,10 +62,18 @@ public class Updater implements Runnable {
                 Vec2f pos = net.map.getPlayerPos().getPos();
                 net.records.addRecord(RealmNetworker.getTime(), pos.x(), pos.y());
                 net.records.lock.unlock();
-                net.LOCK.lock();
-                net.updateCondition.signal();
-                net.LOCK.unlock();
+
                 net.lastUpdate = RealmNetworker.getTime();
+
+                net.ackHandler.process();
+
+                //Create Projectiles
+                try {
+                    createProjectiles();
+                }catch(Exception ex){
+                    ex.printStackTrace();
+                }
+
                 //net.logger.write("packet", "Update End - " + RealmNetworker.getTime());
             }
             try {
@@ -80,14 +85,14 @@ public class Updater implements Runnable {
     }
 
     private void createProjectiles(){
-        ProjectileState[] states;
-        while((states = ShootAckCounter.pollPending()) != null){
-            for (ProjectileState state : states) {
-                if(state != null){
-                    RProjectile.create(net, state);
-                }
-            }
-        }
+//        ProjectileState[] states;
+//        while((states = net.ackHandler.pollPending()) != null){
+//            for (ProjectileState state : states) {
+//                if(state != null){
+//                    RProjectile.create(net, state);
+//                }
+//            }
+//        }
     }
 
     private void updateProjectiles(){

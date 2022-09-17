@@ -18,7 +18,7 @@ public class PingPacketIn extends RotMGPacketIn {
 
     @Override
     public void handle(RealmNetworker net) throws IOException {
-        net.send(new PongPacketOut(serial));
+        net.ackHandler.add(() -> net.send(new PongPacketOut(serial)));
     }
 
     @Override
