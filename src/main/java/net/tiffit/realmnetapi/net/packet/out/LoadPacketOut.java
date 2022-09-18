@@ -14,7 +14,7 @@ public class LoadPacketOut extends RotMGPacketOut {
     }
     @Override
     public void write(DataOutput out) throws IOException {
-        out.writeInt(RealmNetApi.ENV == RotmgEnv.PRODUCTION ? 1 : 124);
+        out.writeInt(RealmNetApi.ENV == RotmgEnv.PRODUCTION ? 1 : 183);
         out.writeBoolean(false);
     }
 }

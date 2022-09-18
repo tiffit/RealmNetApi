@@ -24,6 +24,8 @@ public class XMLLoader {
     public static HashMap<Integer, GameObject> PET_BEHAVIOR = new HashMap<>();
     public static HashMap<Integer, Ground> GROUNDS = new HashMap<>();
 
+    public static HashMap<String, GameObject> ID_TO_OBJECT = new HashMap<>();
+
     private static DocumentBuilder docbuilder;
     private static XPath xPath;
 
@@ -278,6 +280,13 @@ public class XMLLoader {
         XPathExpression xexp = xPath.compile(exp);
         COMPILED.put(exp, xexp);
         return xexp;
+    }
+
+    public static void buildIdMap(){
+        ID_TO_OBJECT.clear();
+        for (GameObject value : OBJECTS.values()) {
+            ID_TO_OBJECT.put(value.id, value);
+        }
     }
 
 

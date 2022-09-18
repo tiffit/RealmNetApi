@@ -1,6 +1,7 @@
 package net.tiffit.realmnetapi.net;
 
 import lombok.SneakyThrows;
+import net.tiffit.realmnetapi.api.PlayerController;
 import net.tiffit.realmnetapi.auth.AccessToken;
 import net.tiffit.realmnetapi.map.RMap;
 import net.tiffit.realmnetapi.net.ack.AckHandler;
@@ -25,6 +26,7 @@ public class RealmNetworker {
     public RMap map;
     public final MoveRecords records = new MoveRecords();
     public final AckHandler ackHandler = new AckHandler(this);
+    public final PlayerController controller = new PlayerController(this);
     public int lastUpdate = 0;
 
     private Socket socket;
