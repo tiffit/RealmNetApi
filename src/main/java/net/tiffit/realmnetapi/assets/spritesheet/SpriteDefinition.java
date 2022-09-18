@@ -9,5 +9,6 @@ public class SpriteDefinition implements Serializable {
     public boolean isT; //true if invisible texture
     public SpriteRect position;
     public SpriteRect maskPosition;
+    public SpriteColor mostCommonColor;
 
 }

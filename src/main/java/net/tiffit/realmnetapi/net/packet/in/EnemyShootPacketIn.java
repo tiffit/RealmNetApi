@@ -1,6 +1,5 @@
 package net.tiffit.realmnetapi.net.packet.in;
 
-import net.tiffit.realmnetapi.assets.xml.GameObject;
 import net.tiffit.realmnetapi.assets.xml.Projectile;
 import net.tiffit.realmnetapi.assets.xml.XMLLoader;
 import net.tiffit.realmnetapi.map.object.RObject;
@@ -81,13 +80,7 @@ public class EnemyShootPacketIn extends RotMGPacketIn {
                     if (proj != null) {
                         state.proj = proj;
                         String objId = proj.objectId;
-                        state.obj = null;
-                        for (GameObject obj : XMLLoader.OBJECTS.values()) {
-                            if (obj.id.equals(objId)) {
-                                state.obj = obj;
-                                break;
-                            }
-                        }
+                        state.obj = XMLLoader.ID_TO_OBJECT.get(objId);
                         RProjectile.create(net, state);
                     } else {
                         System.out.println("Unknown bullet type " + bulletType + " for enemy " + shooter.getGameObject().id);

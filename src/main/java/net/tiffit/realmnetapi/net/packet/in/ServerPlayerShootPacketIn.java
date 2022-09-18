@@ -52,10 +52,7 @@ public class ServerPlayerShootPacketIn extends RotMGPacketIn {
         net.ackHandler.add(() -> {
             RMap map = net.map;
             RotMGEntityList list = map.getEntityList();
-            if(map.getObjectId() != ownerId && (!list.has(ownerId) || list.get(ownerId).isDead())){
-                net.ackHandler.addInvalidShoot();
-                return;
-            }
+            boolean self = map.getObjectId() == ownerId;
             for (int i = 0; i < bulletCount; i++) {
                 ProjectileState state = new ProjectileState();
                 state.bulletId = bulletId + i;
@@ -67,7 +64,7 @@ public class ServerPlayerShootPacketIn extends RotMGPacketIn {
                 state.damage = damage;
                 state.numShots = (byte)bulletCount;
                 state.angleInc = angleBetween;
-                state.team = map.getObjectId() == ownerId ? ProjectileState.ProjectileTeam.SELF : ProjectileState.ProjectileTeam.ALLY;
+                state.team = self ? ProjectileState.ProjectileTeam.SELF : ProjectileState.ProjectileTeam.ALLY;
 
                 GameObject item = XMLLoader.OBJECTS.get(containerType);
                 if (item != null) {
@@ -92,7 +89,9 @@ public class ServerPlayerShootPacketIn extends RotMGPacketIn {
                     }
                 }
             }
-            net.ackHandler.addShoot();
+            if(self){
+                net.ackHandler.addShoot();
+            }
         });
     }
 }

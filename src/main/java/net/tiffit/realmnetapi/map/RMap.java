@@ -51,8 +51,10 @@ public class RMap {
     }
 
     public void setTiles(HashMap<Vec2i, Ground> newTiles){
-        newTiles.forEach((vec2i, ground) -> tiles[vec2i.x()][vec2i.y()] = ground);
-        EventHandler.executeEvent(new TileAddEvent(this, newTiles));
+        if(newTiles.size() > 0){
+            newTiles.forEach((vec2i, ground) -> tiles[vec2i.x()][vec2i.y()] = ground);
+            EventHandler.executeEvent(new TileAddEvent(this, newTiles));
+        }
     }
 
     public RObject getStaticGameObject(int x, int y){

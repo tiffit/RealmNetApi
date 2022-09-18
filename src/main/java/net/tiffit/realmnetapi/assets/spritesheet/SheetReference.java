@@ -51,6 +51,10 @@ public class SheetReference {
         return null;
     }
 
+    public static SpriteDefinition getSpriteDefinition(SpriteLocation location){
+        return SPRITE_MAP.getOrDefault(location, null);
+    }
+
     public static BufferedImage getMask(SpriteDefinition definition){
         SpriteRect rect = definition.maskPosition;
         return CHARACTER_MASKS.getSubimage(rect.x, rect.y, rect.w, rect.h);
