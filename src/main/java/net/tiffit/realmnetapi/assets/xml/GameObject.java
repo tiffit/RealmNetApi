@@ -56,6 +56,9 @@ public class GameObject implements Serializable {
     public boolean soulbound;
     public boolean consumable;
     public boolean potion;
+    public int mpCost;
+    public boolean usable;
+    public float cooldown;
 
     public String hitSound;
     public String deathSound;

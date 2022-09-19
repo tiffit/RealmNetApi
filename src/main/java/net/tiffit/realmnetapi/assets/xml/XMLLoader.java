@@ -169,6 +169,9 @@ public class XMLLoader {
         go.soulbound = helper.hasChild("Soulbound");
         go.potion = helper.hasChild("Potion");
         go.consumable = helper.hasChild("Consumable");
+        go.mpCost = helper.getChildElementInteger("MpCost", 0);
+        go.usable = helper.hasChild("Usable");
+        go.cooldown = helper.getChildElementFloat("Cooldown", 0.5f);
 
         go.hitSound = helper.getChildElementText("HitSound");
         go.deathSound = helper.getChildElementText("DeathSound");

@@ -36,6 +36,10 @@ public record Vec2f(float x, float y) {
         return new Vec2f(x, value);
     }
 
+    public Vec2f absolute(){
+        return new Vec2f(Math.abs(x), Math.abs(y));
+    }
+
     public static Vec2f rotate(float distance, float angleRad){
         return new Vec2f((float)(distance * Math.cos(angleRad)), (float)(distance * Math.sin(angleRad)));
     }
