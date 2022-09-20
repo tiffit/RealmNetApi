@@ -7,14 +7,14 @@ import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 public class SheetReference {
 
     private static final HashMap<SpriteLocation, SpriteDefinition> SPRITE_MAP = new HashMap<>();
-    private static final HashMap<SpriteLocation, List<AnimSpriteDefinition>> ANIM_SPRITE_MAP = new HashMap<>();
+    private static final HashMap<SpriteLocation, AnimMap> ANIM_SPRITE_MAP = new HashMap<>();
 
     private static BufferedImage CHARACTER_MASKS;
     private static BufferedImage GROUND_TILES; //id 1
@@ -30,12 +30,13 @@ public class SheetReference {
                 SPRITE_MAP.put(new SpriteLocation(sheetDef.spriteSheetName, sprite.index), sprite);
             }
         }
+        System.out.println("SheetDefinition finished");
         for (AnimSpriteDefinition sprite : sheet.animatedSprites) {
             SpriteLocation loc = new SpriteLocation(sprite.spriteSheetName, sprite.index);
-            ANIM_SPRITE_MAP.putIfAbsent(loc, new ArrayList<>());
-            List<AnimSpriteDefinition> list = ANIM_SPRITE_MAP.get(loc);
-            list.add(sprite);
+            ANIM_SPRITE_MAP.putIfAbsent(loc, new AnimMap());
+            ANIM_SPRITE_MAP.get(loc).addDefinition(sprite);
         }
+        System.out.println("AnimSpriteDefinition loaded");
         System.out.println("Downloading atlases...");
         CHARACTERS = downloadImage(filePath, "characters");
         CHARACTER_MASKS = downloadImage(filePath, "characters_masks");
@@ -62,10 +63,11 @@ public class SheetReference {
 
     public static SpriteDefinition getAnimatedSpriteDefinition(SpriteLocation location){
         if(ANIM_SPRITE_MAP.containsKey(location)){
-            List<AnimSpriteDefinition> list = new ArrayList<>(ANIM_SPRITE_MAP.get(location));
-            list.sort(AnimSpriteDefinition::compareTo);
-            AnimSpriteDefinition animSpriteDefinition = list.get(0);
-            return animSpriteDefinition.spriteData;
+            AnimMap map = ANIM_SPRITE_MAP.get(location);
+            List<AnimSpriteDefinition> list = map.getDefinition(AnimMap.ACTION_IDLE, AnimMap.DIRECTION_SIDE);
+            if(list.size() > 0){
+                return list.get(0).spriteData;
+            }
         }
         return null;
     }
@@ -76,6 +78,18 @@ public class SheetReference {
             return getSprite(definition);
         }
         return null;
+    }
+
+    public static AnimMap getAnimatedSprites(SpriteLocation location){
+        return ANIM_SPRITE_MAP.get(location);
+    }
+
+    public static Set<SpriteLocation> getSpriteLocations(){
+        return SPRITE_MAP.keySet();
+    }
+
+    public static Set<SpriteLocation> getAnimatedSpriteLocations(){
+        return ANIM_SPRITE_MAP.keySet();
     }
 
     public static BufferedImage getSprite(SpriteDefinition definition){
