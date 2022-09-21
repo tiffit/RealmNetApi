@@ -202,6 +202,8 @@ public class XMLLoader {
             proj.acceleration = phelper.getChildElementFloat("Acceleration", 0);
             proj.accelerationDelay = phelper.getChildElementFloat("AccelerationDelay", 0);
             proj.speedClamp = phelper.getChildElementFloat("SpeedClamp", 100_000);
+            proj.circleTurnDelay = phelper.getChildElementFloat("CircleTurnDelay", 0);
+            proj.circleTurnAngle = phelper.getChildElementFloat("CircleTurnAngle", 0);
             go.projectiles.add(proj);
         }
         if(go.goClass.equals("PetBehavior")){

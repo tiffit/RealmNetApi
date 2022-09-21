@@ -202,7 +202,12 @@ public class RProjectile {
         Vec2f point = new Vec2f(state.startX, state.startY);
         double distance = CalculateDistance(time);
         double phase = state.bulletId % 2 == 0 ? 0 : Math.PI;
-        if (proj.wavy) {
+        if(proj.circleTurnAngle != 0){
+            distance = CalculateDistance(proj.circleTurnDelay);
+            float turnTime = time - proj.circleTurnDelay;
+            double angle = state.angle + Math.toRadians((turnTime / 10) * turnTime);
+            point = point.add((float)(distance * Math.cos(angle)), (float)(distance * Math.sin(angle)));
+        }else if (proj.wavy) {
             double sixPi = 6D * Math.PI;
             double piOver64 = Math.PI / 64D;
             double newAngle = state.angle + piOver64 * Math.sin(phase + sixPi * time / 1000);
