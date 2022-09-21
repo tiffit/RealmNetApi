@@ -61,11 +61,11 @@ public class XMLLoader {
             doc.normalize();
             NodeList objects = doc.getElementsByTagName("Object");
             for(int i = 0; i < objects.getLength(); i++){
+                Element elem = (Element) objects.item(i);
                 try {
-                    Element elem = (Element) objects.item(i);
                     loadObject((Element)elem.cloneNode(true));
                 }catch(Exception ex){
-                    System.out.println("Unable to load object!");
+                    System.out.println("Unable to load object: " + elem.getAttribute("id"));
                     ex.printStackTrace();
                 }
             }
@@ -199,6 +199,9 @@ public class XMLLoader {
             proj.magnitude = phelper.getChildElementFloat("Magnitude", 3);
             proj.amplitude = phelper.getChildElementFloat("Amplitude", 0);
             proj.frequency = phelper.getChildElementFloat("Frequency", 1);
+            proj.acceleration = phelper.getChildElementFloat("Acceleration", 0);
+            proj.accelerationDelay = phelper.getChildElementFloat("AccelerationDelay", 0);
+            proj.speedClamp = phelper.getChildElementFloat("SpeedClamp", 100_000);
             go.projectiles.add(proj);
         }
         if(go.goClass.equals("PetBehavior")){

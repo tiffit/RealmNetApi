@@ -200,7 +200,7 @@ public class RProjectile {
         int time = currentTime - getStartTime();
         Projectile proj = state.proj;
         Vec2f point = new Vec2f(state.startX, state.startY);
-        double distance = time * (proj.speed / 10_000);
+        double distance = CalculateDistance(time);
         double phase = state.bulletId % 2 == 0 ? 0 : Math.PI;
         if (proj.wavy) {
             double sixPi = 6D * Math.PI;
@@ -216,9 +216,10 @@ public class RProjectile {
             point = point.add((float)((v2 * cosVal - v3 * sinVal) * proj.magnitude), (float)((v2 * sinVal + v3 * cosVal) * proj.magnitude));
         } else {
             if (proj.boomerang) {
-                double halfwayPoint = proj.lifetimeMS * (proj.speed / 10000) / 2;
-                if (distance > halfwayPoint) {
-                    distance = halfwayPoint - (distance - halfwayPoint);
+                float halfwayTime = proj.lifetimeMS / 2f;
+                if (time > halfwayTime) {
+                    float halfwayDistance = CalculateDistance(halfwayTime);
+                    distance = halfwayDistance*2 - distance;
                 }
             }
             point = point.add((float)(distance * Math.cos(state.angle)), (float)(distance * Math.sin(state.angle)));
@@ -228,6 +229,33 @@ public class RProjectile {
             }
         }
         return point;
+    }
+
+    private float CalculateDistance(float time){
+        Projectile proj = state.proj;
+        if (proj.acceleration == 0 || proj.parametric) {
+            return time * (proj.speed / 10_000);
+        }
+        float preAccelerationTime = Math.min(time, proj.accelerationDelay);
+        float distance = preAccelerationTime * (proj.speed / 10_000);
+        float clamp = proj.speedClamp;
+        float clampTime = (clamp - proj.speed) / proj.acceleration * 1000f + preAccelerationTime;
+        if (clampTime < 0) clampTime = Float.MAX_VALUE;
+        if (time > proj.accelerationDelay) {
+            //float accelTime = (Math.min(time, clampTime) - proj.accelerationDelay)/1000f;
+            //distance += (((proj.acceleration * accelTime) / 2f) + (proj.speed * accelTime)) / 10f; // (Triangle + Base)/10
+            distance +=  (CalculateAccIntegral(Math.min(time, clampTime)/1000f) - CalculateAccIntegral(proj.accelerationDelay / 1000f)) / 10;
+        }
+        if (time > clampTime) {
+            distance += (time-clampTime) * (clamp / 10_000);
+        }
+        return distance;
+    }
+
+    private float CalculateAccIntegral(float timeSeconds){
+        Projectile proj = state.proj;
+        float area = proj.acceleration * timeSeconds * 0.5f - proj.acceleration * proj.accelerationDelay / 1000f + proj.speed;
+        return area * timeSeconds;
     }
 
 }

@@ -21,4 +21,6 @@ public class Projectile implements Serializable {
 
     public float magnitude = 3, amplitude = 0, frequency = 1;
 
+    public float acceleration = 0, accelerationDelay = 0, speedClamp = 0;
+
 }
