@@ -1,7 +1,6 @@
 package net.tiffit.realmnetapi.net.packet.out;
 
-import net.tiffit.realmnetapi.RealmNetApi;
-import net.tiffit.realmnetapi.auth.RotmgEnv;
+import net.tiffit.realmnetapi.api.Hooks;
 import net.tiffit.realmnetapi.net.packet.RotMGPacketOut;
 
 import java.io.DataOutput;
@@ -14,7 +13,7 @@ public class LoadPacketOut extends RotMGPacketOut {
     }
     @Override
     public void write(DataOutput out) throws IOException {
-        out.writeInt(RealmNetApi.ENV == RotmgEnv.PRODUCTION ? 1 : 222);
+        out.writeInt(Hooks.CharacterId);
         out.writeBoolean(false);
     }
 }

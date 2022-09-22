@@ -1,9 +1,9 @@
 package net.tiffit.realmnetapi.auth;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.SneakyThrows;
 import net.tiffit.realmnetapi.RealmNetApi;
+import net.tiffit.realmnetapi.auth.data.PlayerChar;
+import net.tiffit.realmnetapi.auth.data.ServerInfo;
 import okhttp3.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -13,6 +13,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 public class RealmAuth {
@@ -93,7 +95,7 @@ public class RealmAuth {
     }
 
     @SneakyThrows
-    public static void charList(AccessToken token){
+    public static List<PlayerChar> charList(AccessToken token){
         RequestBody requestBody = new FormBody.Builder()
                 .add("do_login", "true")
                 .add("accessToken", token.getToken())
@@ -103,8 +105,30 @@ public class RealmAuth {
         Request request = new Request.Builder().url(BASE_URL + "char/list").post(requestBody).header("User-Agent", "UnityPlayer/2021.3.5f1 (UnityWebRequest/1.0, libcurl/7.80.0-DEV)").build();
         ResponseBody response = client.newCall(request).execute().body();
         assert response != null;
-        System.out.println(response.string());
-        return;
+        Document doc = builder.parse(response.byteStream());
+        doc.normalizeDocument();
+        NodeList charsNodes = doc.getDocumentElement().getChildNodes();
+
+        List<PlayerChar> chars = new LinkedList<>();
+
+        for(int i = 0; i < charsNodes.getLength(); i++){
+            Element charElem = (Element) charsNodes.item(i);
+            if(!charElem.getTagName().equals("Char"))continue;
+            NodeList charNodes = charElem.getChildNodes();
+            int id = Integer.parseInt(charElem.getAttribute("id"));
+            int objectType = 0, level = 0;
+            int[] equipment = null;
+            for(int j = 0; j < charNodes.getLength(); j++){
+                Element elem = (Element) charNodes.item(j);
+                switch (elem.getNodeName()) {
+                    case "ObjectType" -> objectType = Integer.parseInt(elem.getTextContent());
+                    case "Level" -> level = Integer.parseInt(elem.getTextContent());
+                    case "Equipment" -> equipment = Arrays.stream(elem.getTextContent().split(",")).mapToInt(Integer::parseInt).toArray();
+                }
+            }
+            chars.add(new PlayerChar(id, objectType, level, equipment));
+        }
+        return chars;
     }
 
     @SneakyThrows
@@ -133,7 +157,6 @@ public class RealmAuth {
         Request request = new Request.Builder().url(BASE_URL + "account/servers").post(requestBody).header("User-Agent", "UnityPlayer/2021.3.5f1 (UnityWebRequest/1.0, libcurl/7.80.0-DEV)").build();
         ResponseBody response = client.newCall(request).execute().body();
         assert response != null;
-        System.out.println(response.string());
         Document doc = builder.parse(response.byteStream());
         doc.normalizeDocument();
         NodeList serversNodes = doc.getDocumentElement().getChildNodes();
@@ -141,26 +164,21 @@ public class RealmAuth {
             Element serverElem = (Element) serversNodes.item(i);
             NodeList serverNodes = serverElem.getChildNodes();
             String name = "N/A";
+            String dns = "";
             float usage = 0;
             for(int j = 0; j < serverNodes.getLength(); j++){
                 Element elem = (Element) serverNodes.item(j);
-                switch (elem.getNodeName()){
-                    case "Name": name = elem.getTextContent(); break;
-                    case "Usage": usage = Float.parseFloat(elem.getTextContent()); break;
+                switch (elem.getNodeName()) {
+                    case "Name" -> name = elem.getTextContent();
+                    case "Usage" -> usage = Float.parseFloat(elem.getTextContent());
+                    case "DNS" -> dns = elem.getTextContent();
                 }
             }
-            ServerInfo info = new ServerInfo(name, usage);
+            ServerInfo info = new ServerInfo(name, dns, usage);
             servers.add(info);
         }
-        servers.sort((o1, o2) -> o2.name.compareTo(o1.name));
+        servers.sort((o1, o2) -> o2.name().compareTo(o1.name()));
         return servers;
-    }
-
-    @AllArgsConstructor
-    @Getter
-    public static class ServerInfo{
-        private final String name;
-        private final float usage;
     }
 
 }

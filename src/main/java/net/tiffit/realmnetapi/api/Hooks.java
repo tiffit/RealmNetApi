@@ -16,4 +16,5 @@ public class Hooks {
     public static Function<RObject, IObjectListener<RObject>> ObjectListener = IObjectListener.EmptyObjectListener::new;
     public static Function<RProjectile, IObjectListener<RProjectile>> ProjectileListener = IObjectListener.EmptyObjectListener::new;
     public static IShootDecider ShootDecider = new IShootDecider.ShootDecider();
+    public static int CharacterId = 0;
 }
