@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GameObject implements Serializable {
 
@@ -19,9 +20,10 @@ public class GameObject implements Serializable {
     public boolean player;
 
     public List<Texture> texture = new ArrayList<>();
+    public Map<Integer, Texture> altTextures = new HashMap<>();
     public Texture textureTop;
     public String model;
-    public HashMap<String, Animation> animations = new HashMap<>();
+    public Map<String, Animation> animations = new HashMap<>();
     public int color;
     public int rotation;
     public float angleCorrection;
@@ -62,5 +64,8 @@ public class GameObject implements Serializable {
 
     public String hitSound;
     public String deathSound;
+
+
+    public Map<Integer, Style> styles = new HashMap<>();
 
 }

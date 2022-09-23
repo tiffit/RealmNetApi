@@ -1,10 +1,7 @@
 package net.tiffit.realmnetapi;
 
-import net.tiffit.realmnetapi.assets.spritesheet.SheetReference;
-import net.tiffit.realmnetapi.assets.spritesheet.Spritesheet;
 import net.tiffit.realmnetapi.auth.RotmgEnv;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 
@@ -16,8 +13,8 @@ public class RealmNetApi {
     private static HashMap<String, String> locMap = new HashMap<>();
 
     public static void main(String[] args) throws FileNotFoundException {
-        Spritesheet.LoadSpriteSheets(new FileInputStream("./assets/sprites/spritesheet.json"));
-        SheetReference.Init("./assets/sprites/");
+//        Spritesheet.LoadSpriteSheets(new FileInputStream("./assets/sprites/spritesheet.json"));
+//        SheetReference.Init("./assets/sprites/");
 //        try {
 //            DataInputStream stream = new DataInputStream(new FileInputStream("./assets/res"));
 //            byte[] data = new byte[stream.available()];

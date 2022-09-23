@@ -111,6 +111,22 @@ public class XMLLoader {
         if(hasChild(elem,"Top/Texture")) go.textureTop = loadTexture(getChild(elem, "Top/Texture"));
         else if(hasChild(elem,"Top/RandomTexture")) go.textureTop = loadTexture(getChild(elem, "Top/RandomTexture/Texture"));
 
+        NodeList altTextureList = helper.getChilds("AltTexture");
+        for (int i = 0; i < altTextureList.getLength(); i++) {
+            Element altTexElem = (Element) altTextureList.item(i);
+            XMLElementHelper altTexHelper = new XMLElementHelper(altTexElem);
+            int id = Integer.parseInt(altTexElem.getAttribute("id"));
+            boolean animated = false;
+            NodeList texList = altTexElem.getElementsByTagName("Texture");
+            if(texList.getLength() == 0){
+                texList = altTexElem.getElementsByTagName("AnimatedTexture");
+                animated = true;
+            }
+            Texture texture = loadTexture((Element)texList.item(0));
+            texture.animated = animated;
+            go.altTextures.put(id, texture);
+        }
+
         NodeList animations = helper.getChilds("Animation");
         for (int i = 0; i < animations.getLength(); i++) {
             Element animationElem = (Element) animations.item(i);
@@ -206,6 +222,19 @@ public class XMLLoader {
             proj.circleTurnAngle = phelper.getChildElementFloat("CircleTurnAngle", 0);
             go.projectiles.add(proj);
         }
+
+        if(helper.hasChild("Presentation")){
+            Element presentation = helper.getChild("Presentation");
+            NodeList styles = presentation.getChildNodes();
+            for (int i = 0; i < styles.getLength(); i++) {
+                if(styles.item(i) instanceof Element styleElem){
+                    Style style = new Style();
+                    style.load(styleElem);
+                    go.styles.put(style.getIdHash(), style);
+                }
+            }
+        }
+
         if(go.goClass.equals("PetBehavior")){
             PET_BEHAVIOR.put(go.type, go);
         }else if(go.goClass.equals("PetAbility")){

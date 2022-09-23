@@ -144,6 +144,7 @@ public class GameObjectState {
             if(statType == null){
                 System.out.println("Unknown stat " + statTypeByte);
                 RotMGPacketIn.readCompressedInt(in);
+                RotMGPacketIn.readCompressedInt(in);
                 continue;
             }
             if(statType.stringType) {
@@ -151,7 +152,7 @@ public class GameObjectState {
             } else {
                 state.setStat(statType, RotMGPacketIn.readCompressedInt(in));
             }
-            RotMGPacketIn.readCompressedInt(in);
+            int extra = RotMGPacketIn.readCompressedInt(in);
         }
         return state;
     }
