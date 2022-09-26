@@ -4,76 +4,83 @@ import java.io.Serializable;
 
 public enum ConditionEffect implements Serializable {
     NOTHING(0),
-    DEAD(1),
-    QUIET(2),
-    WEAK(3),
-    SLOWED(4),
-    SICK(5),
-    DAZED(6),
-    STUNNED(7),
-    BLIND(8),
-    HALLUCINATING(9),
-    DRUNK(10),
-    CONFUSED(11),
-    STUN_IMMUNE(12),
-    INVISIBLE(13),
-    PARALYZED(14),
-    SPEEDY(15),
-    BLEEDING(16),
-    ARMORBROKENIMMUNE(17),
-    HEALING(18),
-    DAMAGING(19),
-    BERSERK(20),
-    PAUSED(21),
-    STASIS(22),
-    STASIS_IMMUNE(23),
-    INVINCIBLE(24),
-    INVULNERABLE(25),
-    ARMORED(26),
-    ARMORBROKEN(27),
-    HEXED(28),
-    NINJA_SPEEDY(29),
-    UNSTABLE(30),
-    DARKNESS(31),
-    SLOWED_IMMUNE(32, true),
-    DAZED_IMMUNE(33, true),
-    PARALYZED_IMMUNE(34, true),
-    PETRIFIED(35, true),
-    PETRIFIED_IMMUNE(36, true),
-    PET_EFFECT_ICON(37, true),
-    CURSE(38, true),
-    CURSE_IMMUNE(39, true),
-    HP_BOOST(40, true),
-    MP_BOOST(41, true),
-    ATT_BOOST(42, true),
-    DEF_BOOST(43, true),
-    SPD_BOOST(44, true),
-    VIT_BOOST(45, true),
-    WIS_BOOST(46, true),
-    DEX_BOOST(47, true),
-    SILENCED(48, true),
-    EXPOSED(49, true),
-    ENERGIZED(50, true),
-    HP_DEBUFF(51, true),
-    MP_DEBUFF(52, true),
-    ATT_DEBUFF(53, true),
-    DEF_DEBUFF(54, true),
-    SPD_DEBUFF(55, true),
-    VIT_DEBUFF(56, true),
-    WIS_DEBUFF(57, true),
-    DEX_DEBUFF(58, true),
+    DEAD(1, "Dead", false),
+    QUIET(2, "Quiet", false),
+    WEAK(3, "Weak", false),
+    SLOWED(4, "Slowed", false),
+    SICK(5, "Sick", false),
+    DAZED(6, "Dazed", false),
+    STUNNED(7, "Stunned", false),
+    BLIND(8, "Blind", false),
+    HALLUCINATING(9, "Hallucinating", false),
+    DRUNK(10, "Drunk", false),
+    CONFUSED(11, "Confused", false),
+    STUN_IMMUNE(12, "Stun Immune", true),
+    INVISIBLE(13, "Invisible", true),
+    PARALYZED(14, "Paralyzed", false),
+    SPEEDY(15, "Speedy", true),
+    BLEEDING(16, "Bleeding", false),
+    ARMORBROKENIMMUNE(17, "Armorbreak Immune", true),
+    HEALING(18, "Healing", true),
+    DAMAGING(19, "Damaging", true),
+    BERSERK(20, "Berserk", true),
+    PAUSED(21, "Paused", true),
+    STASIS(22, "Stasis", false),
+    STASIS_IMMUNE(23, "Stasis Immune", false),
+    INVINCIBLE(24, "Invincible", true),
+    INVULNERABLE(25, "Invulnerable", true),
+    ARMORED(26, "Armored", true),
+    ARMORBROKEN(27, "Armor Broken", false),
+    HEXED(28, "Hexed", false),
+    NINJA_SPEEDY(29, "Ninja Speedy", true),
+    UNSTABLE(30, "Unstable", false),
+    DARKNESS(31, "Invincible", false),
+    SLOWED_IMMUNE(32, "Slowed Immune", true, true),
+    DAZED_IMMUNE(33, "Dazed Immune", true, true),
+    PARALYZED_IMMUNE(34, "Paralyze Immune", true,  true),
+    PETRIFIED(35, "Petrified", false,  true),
+    PETRIFIED_IMMUNE(36, "Petrified Immune", false,  true),
+    PET_EFFECT_ICON(37, "Pet Effect", false,  true),
+    CURSE(38, "Curse", false,  true),
+    CURSE_IMMUNE(39, "Curse Immune", true,  true),
+    HP_BOOST(40, "HP+", true,  true),
+    MP_BOOST(41, "MP+", true,  true),
+    ATT_BOOST(42, "ATT+", true,  true),
+    DEF_BOOST(43, "DEF+", true,  true),
+    SPD_BOOST(44, "SPD+", true,  true),
+    VIT_BOOST(45, "VIT+", true,  true),
+    WIS_BOOST(46, "WIS+", true,  true),
+    DEX_BOOST(47, "DEX+", true,  true),
+    SILENCED(48, "Silenced", false,  true),
+    EXPOSED(49, "Exposed", false,  true),
+    ENERGIZED(50, "Energized", true,  true),
+    HP_DEBUFF(51, "HP-", false,  true),
+    MP_DEBUFF(52, "MP-", false,  true),
+    ATT_DEBUFF(53, "ATT-", false,  true),
+    DEF_DEBUFF(54, "DEF-", false,  true),
+    SPD_DEBUFF(55, "SPD-", false,  true),
+    VIT_DEBUFF(56, "VIT-", false,  true),
+    WIS_DEBUFF(57, "WIS-", false,  true),
+    DEX_DEBUFF(58, "DEX-", false,  true),
     GROUND_DAMAGE(99);
 
     public final int id;
     public final boolean newCondition;
+    public final boolean buff;
+    public final String displayName;
 
     ConditionEffect(int id){
-        this(id, false);
+        this(id, "", true, false);
     }
 
-    ConditionEffect(int id, boolean newCondition){
+    ConditionEffect(int id, String displayName, boolean buff){
+        this(id, displayName, buff, false);
+    }
+    ConditionEffect(int id, String displayName, boolean buff, boolean newCondition){
         this.id = id;
         this.newCondition = newCondition;
+        this.buff = buff;
+        this.displayName = displayName;
     }
 
     public int getConditionBit(){
@@ -89,9 +96,12 @@ public enum ConditionEffect implements Serializable {
 
     public static ConditionEffect byName(String name){
         for(ConditionEffect effect : values()) {
-            if (effect.name().toLowerCase().equals(name.toLowerCase())) return effect;
+            if (effect.name().equalsIgnoreCase(name)) return effect;
         }
         return null;
     }
 
+    public String getDisplayName() {
+        return displayName.isEmpty() ? name() : displayName;
+    }
 }

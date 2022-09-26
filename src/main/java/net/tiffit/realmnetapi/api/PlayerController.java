@@ -4,10 +4,12 @@ import net.tiffit.realmnetapi.assets.ConditionEffect;
 import net.tiffit.realmnetapi.assets.xml.GameObject;
 import net.tiffit.realmnetapi.assets.xml.XMLLoader;
 import net.tiffit.realmnetapi.map.object.GameObjectState;
+import net.tiffit.realmnetapi.map.object.RObject;
 import net.tiffit.realmnetapi.map.object.StatType;
 import net.tiffit.realmnetapi.net.RealmNetworker;
 import net.tiffit.realmnetapi.net.SlotObjectData;
 import net.tiffit.realmnetapi.net.packet.out.PlayerTextPacketOut;
+import net.tiffit.realmnetapi.net.packet.out.TeleportPacketOut;
 import net.tiffit.realmnetapi.net.packet.out.UseItemPacketOut;
 import net.tiffit.realmnetapi.util.math.Vec2f;
 
@@ -54,8 +56,14 @@ public class PlayerController {
         }
         lastAbilityUse = time;
         SlotObjectData data = new SlotObjectData(net.map.getObjectId(), 1, equipItem);
-        UseItemPacketOut packet = new UseItemPacketOut(time, data, pos, 1);
-        net.send(packet);
+        net.send(new UseItemPacketOut(time, data, pos, 1));
         return AbilityUseResult.SUCCESS;
+    }
+
+    public void teleport(RObject obj){
+        GameObjectState state = obj.getState();
+        if(state.hasStat(StatType.NAME)){
+            net.send(new TeleportPacketOut(state.objectId, state.getStat(StatType.NAME)));
+        }
     }
 }

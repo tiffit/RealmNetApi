@@ -18,6 +18,7 @@ public class ProjectileState {
     public short damage;
     public byte numShots;
     public double angleInc;
+    public float lifetimeMult = 1, speedMult = 1;
 
     public enum ProjectileTeam{
         ENEMY, SELF, ALLY

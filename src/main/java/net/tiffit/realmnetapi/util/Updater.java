@@ -165,7 +165,7 @@ public class Updater implements Runnable {
         }
         double freq = RConstants.MIN_ATTACK_FREQ + state.getDexterity() / 75.0f * (RConstants.MAX_ATTACK_FREQ - RConstants.MIN_ATTACK_FREQ);
         if(state.hasEffect(ConditionEffect.BERSERK)){
-            freq *= 1.5;
+            freq *= 1.25;
         }
         return freq;
     }
@@ -182,7 +182,7 @@ public class Updater implements Runnable {
         }
         double mult = RConstants.MIN_ATTACK_MULT + state.getAttack() / 75d * (RConstants.MAX_ATTACK_MULT - RConstants.MIN_ATTACK_MULT);
         if(state.hasEffect(ConditionEffect.DAMAGING)){
-            mult *= 1.5;
+            mult *= 1.25;
         }
         return mult;
     }

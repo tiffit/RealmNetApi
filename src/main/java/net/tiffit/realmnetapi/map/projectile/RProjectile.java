@@ -31,6 +31,8 @@ public class RProjectile {
 
     private static int nextProjId = 0;
 
+    public final float effectiveLifetime, effectiveSpeed;
+
     public ProjectileState getProjectileState() {
         return state;
     }
@@ -55,6 +57,8 @@ public class RProjectile {
         listener = Hooks.ProjectileListener.apply(this);
         this.net = net;
         this.state = state;
+        this.effectiveLifetime = state.lifetimeMult * state.proj.lifetimeMS;
+        this.effectiveSpeed = state.speedMult * state.proj.speed;
     }
 
     public static RProjectile create(RealmNetworker net, ProjectileState state){
@@ -78,7 +82,7 @@ public class RProjectile {
         ProjectileState state = getProjectileState();
         int time = getStartTime();
         Vec2f vec = getPositionAt(state, gameTime);
-        if (state.proj.lifetimeMS < gameTime - time){
+        if (effectiveLifetime < gameTime - time){
             return false;
         }
         RMap map = net.map;
@@ -95,9 +99,6 @@ public class RProjectile {
             if ((!squareGo.enemy || !(state.team == ProjectileState.ProjectileTeam.ALLY || state.team == ProjectileState.ProjectileTeam.SELF))
                     && (squareGo.enemyOccupySquare || !state.proj.passesCover && squareGo.occupySquare)) {
                 if (state.team == ProjectileState.ProjectileTeam.ENEMY) {
-//                    net.logger.write("packet", "1: objectId=" + squareState.objectId + ", xmlId=" + squareGo.id + ", disFromPlayer=" +
-//                            Math.sqrt(vec.distanceSqr(Hooks.PlayerPosTracker.get().getPos())) + ", aliveTime=" + (RealmNetworker.getTime() - time) +
-//                            ", lifetime=" + state.proj.lifetimeMS + ", ownerType=" + state.ownerType);
                     net.send(new OtherHitPacketOut(RealmNetworker.getTime(), (short) state.bulletId, state.ownerId, squareState.objectId));
                 }
                 return false;
@@ -125,7 +126,6 @@ public class RProjectile {
                         map.getEntityList().get(hitState.objectId).mergeState(hitState);
                     }
                 } else if (!state.proj.multiHit) {
-                    //net.logger.write("packet", "2: " + hit.b().objectId + ", " + hit.b().getGameObject().id);
                     net.send(new OtherHitPacketOut(RealmNetworker.getTime(), (short) state.bulletId, state.ownerId, hit.b().objectId));
                 }
             }
@@ -202,18 +202,18 @@ public class RProjectile {
         Vec2f point = new Vec2f(state.startX, state.startY);
         double distance = CalculateDistance(time);
         double phase = state.bulletId % 2 == 0 ? 0 : Math.PI;
-        if(proj.circleTurnAngle != 0){
+        if(proj.circleTurnAngle != 0 && proj.circleTurnDelay < time){
             distance = CalculateDistance(proj.circleTurnDelay);
-            float turnTime = time - proj.circleTurnDelay;
-            double angle = state.angle + Math.toRadians((turnTime / 10) * turnTime);
-            point = point.add((float)(distance * Math.cos(angle)), (float)(distance * Math.sin(angle)));
+            float angle = (float) Math.toRadians(proj.circleTurnAngle / proj.circleTurnDelay * (time - proj.circleTurnDelay));
+            angle += state.angle;
+            return point.add((float)(distance * Math.cos(angle)), (float)(distance * Math.sin(angle)));
         }else if (proj.wavy) {
             double sixPi = 6D * Math.PI;
             double piOver64 = Math.PI / 64D;
             double newAngle = state.angle + piOver64 * Math.sin(phase + sixPi * time / 1000);
             point = point.add((float)(distance * Math.cos(newAngle)), (float)(distance * Math.sin(newAngle)));
         } else if (proj.parametric) {
-            double v1 = (double)time / proj.lifetimeMS * 2 * Math.PI;
+            double v1 = (double)time / effectiveLifetime * 2 * Math.PI;
             double v2 = Math.sin(v1) * (state.bulletId % 2 > 0 ? 1 : -1);
             double v3 = Math.sin(2 * v1) * (state.bulletId % 4 < 2 ? 1 : -1);
             double sinVal = Math.sin(state.angle);
@@ -221,7 +221,7 @@ public class RProjectile {
             point = point.add((float)((v2 * cosVal - v3 * sinVal) * proj.magnitude), (float)((v2 * sinVal + v3 * cosVal) * proj.magnitude));
         } else {
             if (proj.boomerang) {
-                float halfwayTime = proj.lifetimeMS / 2f;
+                float halfwayTime = effectiveLifetime / 2f;
                 if (time > halfwayTime) {
                     float halfwayDistance = CalculateDistance(halfwayTime);
                     distance = halfwayDistance*2 - distance;
@@ -229,7 +229,7 @@ public class RProjectile {
             }
             point = point.add((float)(distance * Math.cos(state.angle)), (float)(distance * Math.sin(state.angle)));
             if (proj.amplitude != 0) {
-                double deflection = proj.amplitude * Math.sin(phase + time / proj.lifetimeMS * proj.frequency * 2 * Math.PI);
+                double deflection = proj.amplitude * Math.sin(phase + time / effectiveLifetime * proj.frequency * 2 * Math.PI);
                 point = point.add((float)(deflection * Math.cos(state.angle + Math.PI / 2)), (float)(deflection * Math.sin(state.angle + Math.PI / 2)));
             }
         }
@@ -239,16 +239,14 @@ public class RProjectile {
     private float CalculateDistance(float time){
         Projectile proj = state.proj;
         if (proj.acceleration == 0 || proj.parametric) {
-            return time * (proj.speed / 10_000);
+            return time * (effectiveSpeed / 10_000);
         }
         float preAccelerationTime = Math.min(time, proj.accelerationDelay);
-        float distance = preAccelerationTime * (proj.speed / 10_000);
+        float distance = preAccelerationTime * (effectiveSpeed / 10_000);
         float clamp = proj.speedClamp;
-        float clampTime = (clamp - proj.speed) / proj.acceleration * 1000f + preAccelerationTime;
+        float clampTime = (clamp - effectiveSpeed) / proj.acceleration * 1000f + preAccelerationTime;
         if (clampTime < 0) clampTime = Float.MAX_VALUE;
         if (time > proj.accelerationDelay) {
-            //float accelTime = (Math.min(time, clampTime) - proj.accelerationDelay)/1000f;
-            //distance += (((proj.acceleration * accelTime) / 2f) + (proj.speed * accelTime)) / 10f; // (Triangle + Base)/10
             distance +=  (CalculateAccIntegral(Math.min(time, clampTime)/1000f) - CalculateAccIntegral(proj.accelerationDelay / 1000f)) / 10;
         }
         if (time > clampTime) {
@@ -259,7 +257,7 @@ public class RProjectile {
 
     private float CalculateAccIntegral(float timeSeconds){
         Projectile proj = state.proj;
-        float area = proj.acceleration * timeSeconds * 0.5f - proj.acceleration * proj.accelerationDelay / 1000f + proj.speed;
+        float area = proj.acceleration * timeSeconds * 0.5f - proj.acceleration * proj.accelerationDelay / 1000f + effectiveSpeed;
         return area * timeSeconds;
     }
 

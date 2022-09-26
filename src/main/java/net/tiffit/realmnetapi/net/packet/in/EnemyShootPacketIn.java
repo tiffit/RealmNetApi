@@ -4,6 +4,7 @@ import net.tiffit.realmnetapi.assets.xml.Projectile;
 import net.tiffit.realmnetapi.assets.xml.XMLLoader;
 import net.tiffit.realmnetapi.map.object.RObject;
 import net.tiffit.realmnetapi.map.object.RotMGEntityList;
+import net.tiffit.realmnetapi.map.object.StatType;
 import net.tiffit.realmnetapi.map.projectile.ProjectileState;
 import net.tiffit.realmnetapi.map.projectile.RProjectile;
 import net.tiffit.realmnetapi.net.RealmNetworker;
@@ -64,6 +65,12 @@ public class EnemyShootPacketIn extends RotMGPacketIn {
                 state.numShots = (byte)numShots;
                 state.angleInc = angleIncr;
                 state.team = ProjectileState.ProjectileTeam.ENEMY;
+                if(robj.getState().hasStat(StatType.PROJECTILE_SPEED_MULT)){
+                    state.speedMult = robj.getState().<Integer>getStat(StatType.PROJECTILE_SPEED_MULT) / 1000f;
+                }
+                if(robj.getState().hasStat(StatType.PROJECTILE_LIFE_MULT)){
+                    state.lifetimeMult = robj.getState().<Integer>getStat(StatType.PROJECTILE_LIFE_MULT) / 1000f;
+                }
                 RObject shooter = list.get(ownerId);
                 if (shooter != null) {
                     Projectile proj = null;

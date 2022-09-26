@@ -23,6 +23,6 @@ public class Projectile implements Serializable {
 
     public float acceleration = 0, accelerationDelay = 0, speedClamp = 0;
 
-    public float circleTurnDelay = 0, circleTurnAngle = 0;
+    public float circleTurnDelay = 0, circleTurnAngle = 0, turnStopTime;
 
 }

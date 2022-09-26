@@ -111,10 +111,11 @@ public class XMLLoader {
         if(hasChild(elem,"Top/Texture")) go.textureTop = loadTexture(getChild(elem, "Top/Texture"));
         else if(hasChild(elem,"Top/RandomTexture")) go.textureTop = loadTexture(getChild(elem, "Top/RandomTexture/Texture"));
 
+        if(hasChild(elem,"HealthBarBoss")) go.healthBar = HealthBarBoss.load(getChild(elem, "HealthBarBoss"));
+
         NodeList altTextureList = helper.getChilds("AltTexture");
         for (int i = 0; i < altTextureList.getLength(); i++) {
             Element altTexElem = (Element) altTextureList.item(i);
-            XMLElementHelper altTexHelper = new XMLElementHelper(altTexElem);
             int id = Integer.parseInt(altTexElem.getAttribute("id"));
             boolean animated = false;
             NodeList texList = altTexElem.getElementsByTagName("Texture");
