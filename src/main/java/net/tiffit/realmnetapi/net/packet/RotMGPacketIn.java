@@ -25,9 +25,11 @@ public abstract class RotMGPacketIn {
         PACKET_MAP.put(35, EnemyShootPacketIn::new);
         PACKET_MAP.put(44, TextPacketIn::new);
         PACKET_MAP.put(45, ReconnectPacketIn::new);
+        PACKET_MAP.put(46, DeathPacketIn::new);
         PACKET_MAP.put(49, AllyShootPacketIn::new);
         PACKET_MAP.put(62, UpdatePacketIn::new);
         PACKET_MAP.put(64, AoePacketIn::new);
+        PACKET_MAP.put(75, DamagePacketIn::new);
         PACKET_MAP.put(92, MapInfoPacketIn::new);
         PACKET_MAP.put(101, CreateSuccessPacketIn::new);
     }

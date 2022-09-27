@@ -8,7 +8,7 @@ import java.util.HashMap;
 public class RealmNetApi {
 
     public static String CLIENT_TOKEN = "b6c7a712f40c79621ee51ea4ec907768c96866af";
-    public static RotmgEnv ENV = RotmgEnv.PRODUCTION;
+    public static RotmgEnv ENV = RotmgEnv.TESTING;
 
     private static HashMap<String, String> locMap = new HashMap<>();
 
