@@ -37,6 +37,12 @@ public class AnimMap {
                 def = getDefinition(action - 1, direction);
                 break search;
             }
+            for (Vec2i vec2i : definitions.keySet()) {
+                if(vec2i.x() == ACTION_IDLE){
+                    def = definitions.get(vec2i);
+                    break search;
+                }
+            }
             def = definitions.values().stream().findFirst().orElse(def);
         }
         definitions.put(vec, def);

@@ -65,6 +65,7 @@ public class GameObject implements Serializable {
 
     public String hitSound;
     public String deathSound;
+    public String sound;
 
 
     public Map<Integer, Style> styles = new HashMap<>();

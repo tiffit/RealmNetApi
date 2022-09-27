@@ -2,6 +2,8 @@ package net.tiffit.realmnetapi.util;
 
 import net.tiffit.realmnetapi.api.Hooks;
 import net.tiffit.realmnetapi.api.IShootDecider;
+import net.tiffit.realmnetapi.api.event.EventHandler;
+import net.tiffit.realmnetapi.api.event.PlayerShootEvent;
 import net.tiffit.realmnetapi.assets.ConditionEffect;
 import net.tiffit.realmnetapi.assets.ItemType;
 import net.tiffit.realmnetapi.assets.xml.GameObject;
@@ -154,6 +156,7 @@ public class Updater implements Runnable {
                         PlayerShootPacketOut packet = new PlayerShootPacketOut(ms, bulletId, (short)go.type, (byte)-1, shootPos, angle, false);
                         net.send(packet);
                     }
+                    EventHandler.executeEvent(new PlayerShootEvent(angle, go));
                 }
             }
         }

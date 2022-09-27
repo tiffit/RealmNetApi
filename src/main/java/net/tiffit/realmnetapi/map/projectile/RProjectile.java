@@ -2,13 +2,14 @@ package net.tiffit.realmnetapi.map.projectile;
 
 import net.tiffit.realmnetapi.api.Hooks;
 import net.tiffit.realmnetapi.api.IObjectListener;
+import net.tiffit.realmnetapi.api.event.EnemyHitEvent;
+import net.tiffit.realmnetapi.api.event.EventHandler;
 import net.tiffit.realmnetapi.assets.ConditionEffect;
 import net.tiffit.realmnetapi.assets.xml.GameObject;
 import net.tiffit.realmnetapi.assets.xml.Projectile;
 import net.tiffit.realmnetapi.map.RMap;
 import net.tiffit.realmnetapi.map.object.GameObjectState;
 import net.tiffit.realmnetapi.map.object.RObject;
-import net.tiffit.realmnetapi.map.object.StatType;
 import net.tiffit.realmnetapi.net.RealmNetworker;
 import net.tiffit.realmnetapi.net.packet.out.EnemyHitPacketOut;
 import net.tiffit.realmnetapi.net.packet.out.OtherHitPacketOut;
@@ -111,20 +112,22 @@ public class RProjectile {
             if (state.team == ProjectileState.ProjectileTeam.ENEMY || state.ownerId == map.getObjectId()) {
                 if (hitState.objectId == map.getObjectId()) {
                     net.send(new PlayerHitPacketOut((short) state.bulletId, state.ownerId));
+                    EventHandler.executeEvent(new EnemyHitEvent(this, hitState, false));
                 } else if (hitGo.enemy) {
                     int damage = damageWithDefense(state.damage, hitState.getDefense(), state.proj.armorPierce, hitState);
                     boolean kill = hitState.getHP() <= damage;
                     net.send(new EnemyHitPacketOut(gameTime, (short) state.bulletId, map.getObjectId(), hitState.objectId, kill, map.getObjectId()));
+                    EventHandler.executeEvent(new EnemyHitEvent(this, hitState, kill));
                     //RObject re = map.getEntityList().get(hitState.objectId);
                     //if(damage != 0)re.createDamageTextDark(damage);
                     //re.playDamage(kill);
-                    if (!kill){
-                        hitState.setStat(StatType.HP, hitState.getHP() - damage);
-                        map.getEntityList().get(hitState.objectId).mergeState(hitState);
-                    }else{
-                        hitState.setStat(StatType.HP, 1);
-                        map.getEntityList().get(hitState.objectId).mergeState(hitState);
-                    }
+//                    if (!kill){
+//                        hitState.setStat(StatType.HP, hitState.getHP() - damage);
+//                        map.getEntityList().get(hitState.objectId).mergeState(hitState);
+//                    }else{
+//                        hitState.setStat(StatType.HP, 1);
+//                        map.getEntityList().get(hitState.objectId).mergeState(hitState);
+//                    }
                 } else if (!state.proj.multiHit) {
                     net.send(new OtherHitPacketOut(RealmNetworker.getTime(), (short) state.bulletId, state.ownerId, hit.b().objectId));
                 }
@@ -196,7 +199,7 @@ public class RProjectile {
         return getPositionAt(state, RealmNetworker.getTime());
     }
 
-    private Vec2f getPositionAt(ProjectileState state, int currentTime) {
+    public Vec2f getPositionAt(ProjectileState state, int currentTime) {
         int time = currentTime - getStartTime();
         Projectile proj = state.proj;
         Vec2f point = new Vec2f(state.startX, state.startY);

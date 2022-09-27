@@ -192,6 +192,7 @@ public class XMLLoader {
 
         go.hitSound = helper.getChildElementText("HitSound");
         go.deathSound = helper.getChildElementText("DeathSound");
+        go.sound = helper.getChildElementText("Sound");
 
         NodeList projectiles = (NodeList)compile("./Projectile").evaluate(elem.cloneNode(true), XPathConstants.NODESET);
         for(int i = 0; i < projectiles.getLength(); i++){

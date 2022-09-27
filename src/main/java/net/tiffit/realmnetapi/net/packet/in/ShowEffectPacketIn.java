@@ -89,7 +89,7 @@ public class ShowEffectPacketIn extends RotMGPacketIn {
 
     @Override
     public void handle(RealmNetworker net) throws IOException {
-        EventHandler.executeEvent(new ShowEffectEvent(this));
+        net.ackHandler.add(() -> EventHandler.executeEvent(new ShowEffectEvent(this)));
     }
 
     @Override
