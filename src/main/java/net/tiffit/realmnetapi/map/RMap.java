@@ -40,6 +40,12 @@ public class RMap {
     @Setter
     private int lastTickId = -1;
 
+    @Setter
+    private int heroesRemaining = -1;
+
+    @Setter
+    private int questObjectId = -1;
+
     public RMap(int width, int height, String name, String displayName, String realmName) {
         this.width = width;
         this.height = height;

@@ -85,7 +85,9 @@ public class ServerPlayerShootPacketIn extends RotMGPacketIn {
                         state.obj = XMLLoader.ID_TO_OBJECT.get(objId);
                         RProjectile.create(net, state);
                     } else {
-                        System.out.println("Unknown bullet type " + state.bulletType + " for item " + item.id);
+                        if(!item.goClass.equals("Summon") && !item.goClass.equals("Unknown")){
+                            System.out.println("Unknown bullet type " + state.bulletType + " for item " + item.id);
+                        }
                     }
                 }
             }

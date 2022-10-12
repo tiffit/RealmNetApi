@@ -112,12 +112,13 @@ public class RProjectile {
             if (state.team == ProjectileState.ProjectileTeam.ENEMY || state.ownerId == map.getObjectId()) {
                 if (hitState.objectId == map.getObjectId()) {
                     net.send(new PlayerHitPacketOut((short) state.bulletId, state.ownerId));
-                    EventHandler.executeEvent(new EnemyHitEvent(this, hitState, false));
+                    int damage = damageWithDefense(state.damage, hitState.getDefense(), state.proj.armorPierce, hitState);
+                    EventHandler.executeEvent(new EnemyHitEvent(this, hitState, damage, false));
                 } else if (hitGo.enemy) {
                     int damage = damageWithDefense(state.damage, hitState.getDefense(), state.proj.armorPierce, hitState);
                     boolean kill = hitState.getHP() <= damage;
                     net.send(new EnemyHitPacketOut(gameTime, (short) state.bulletId, map.getObjectId(), hitState.objectId, kill, map.getObjectId()));
-                    EventHandler.executeEvent(new EnemyHitEvent(this, hitState, kill));
+                    EventHandler.executeEvent(new EnemyHitEvent(this, hitState, damage, kill));
                     //RObject re = map.getEntityList().get(hitState.objectId);
                     //if(damage != 0)re.createDamageTextDark(damage);
                     //re.playDamage(kill);

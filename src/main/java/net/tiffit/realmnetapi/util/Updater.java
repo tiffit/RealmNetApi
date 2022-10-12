@@ -156,7 +156,7 @@ public class Updater implements Runnable {
                         PlayerShootPacketOut packet = new PlayerShootPacketOut(ms, bulletId, (short)go.type, (byte)-1, shootPos, angle, false);
                         net.send(packet);
                     }
-                    EventHandler.executeEvent(new PlayerShootEvent(angle, go));
+                    EventHandler.executeEvent(new PlayerShootEvent(angle, go, type));
                 }
             }
         }
