@@ -270,6 +270,16 @@ public class XMLLoader {
         }
         if(hasChild(elem, "NoWalk"))ground.nowalk = true;
         if(hasChild(elem, "Sink"))ground.sink = true;
+
+        ground.push = hasChild(elem,"Push");
+        if(hasChild(elem,"Animate")){
+            Element animate = getChild(elem, "Animate");
+            ground.animate = new TileAnimate();
+            ground.animate.load(animate);
+        }
+        if(hasChild(elem, "Color")){
+            ground.color = Integer.valueOf(getChildElementText(elem, "Color").substring(2), 16);
+        }
         GROUNDS.put(ground.type, ground);
     }
 
