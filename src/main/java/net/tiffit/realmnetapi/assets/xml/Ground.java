@@ -12,8 +12,9 @@ public class Ground implements Serializable {
     public float speed = 1;
 
     public boolean push;
+
+    public boolean alpha;
     public TileAnimate animate;
     public int color;
-
     public List<Texture> textures = new ArrayList<>();
 }

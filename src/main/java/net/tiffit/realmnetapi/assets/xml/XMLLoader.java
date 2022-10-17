@@ -280,6 +280,7 @@ public class XMLLoader {
         if(hasChild(elem, "Color")){
             ground.color = Integer.valueOf(getChildElementText(elem, "Color").substring(2), 16);
         }
+        ground.alpha = hasChild(elem,"Alpha");
         GROUNDS.put(ground.type, ground);
     }
 
