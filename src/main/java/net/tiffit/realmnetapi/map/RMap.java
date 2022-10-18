@@ -28,6 +28,7 @@ public class RMap {
     private final Ground[][] tiles;
     private final RObject[][] staticObjects;
     private final String name, displayName, realmName;
+    private final boolean allowTeleport;
 
     @Setter
     private RotMGRandom random;
@@ -46,12 +47,13 @@ public class RMap {
     @Setter
     private int questObjectId = -1;
 
-    public RMap(int width, int height, String name, String displayName, String realmName) {
+    public RMap(int width, int height, String name, String displayName, String realmName, boolean allowTeleport) {
         this.width = width;
         this.height = height;
         this.name = name;
         this.displayName = displayName;
         this.realmName = realmName;
+        this.allowTeleport = allowTeleport;
         tiles = new Ground[width][height];
         staticObjects = new RObject[width][height];
     }
