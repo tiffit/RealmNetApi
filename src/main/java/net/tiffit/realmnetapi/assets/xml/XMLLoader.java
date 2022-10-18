@@ -281,6 +281,13 @@ public class XMLLoader {
             ground.color = Integer.valueOf(getChildElementText(elem, "Color").substring(2), 16);
         }
         ground.alpha = hasChild(elem,"Alpha");
+
+        ground.sameTypeEdgeMode = hasChild(elem,"SameTypeEdgeMode");
+        if(ground.sameTypeEdgeMode){
+            ground.edge = hasChild(elem, "Edge/Texture") ? loadTexture(getChild(elem, "Edge/Texture")) : null;
+            ground.innerCorner = hasChild(elem, "InnerCorner/Texture") ? loadTexture(getChild(elem, "InnerCorner/Texture")) : null;
+            ground.corner = hasChild(elem, "Corner/Texture") ? loadTexture(getChild(elem, "Corner/Texture")) : null;
+        }
         GROUNDS.put(ground.type, ground);
     }
 

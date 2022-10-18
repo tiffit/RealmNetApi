@@ -14,7 +14,9 @@ public class Ground implements Serializable {
     public boolean push;
 
     public boolean alpha;
+    public boolean sameTypeEdgeMode;
     public TileAnimate animate;
     public int color;
     public List<Texture> textures = new ArrayList<>();
+    public Texture edge, innerCorner, corner;
 }
