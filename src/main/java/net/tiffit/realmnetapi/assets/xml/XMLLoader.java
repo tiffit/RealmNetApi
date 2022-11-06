@@ -225,6 +225,15 @@ public class XMLLoader {
             go.projectiles.add(proj);
         }
 
+        NodeList subattacks = (NodeList)compile("./Subattack").evaluate(elem.cloneNode(true), XPathConstants.NODESET);
+        for(int i = 0; i < subattacks.getLength(); i++){
+            Element subattackElem = (Element)subattacks.item(i).cloneNode(true);
+            SubAttack attack = new SubAttack();
+            attack.load(subattackElem);
+            attack.index = go.subAttacks.size();
+            go.subAttacks.add(attack);
+        }
+
         if(helper.hasChild("Presentation")){
             Element presentation = helper.getChild("Presentation");
             NodeList styles = presentation.getChildNodes();

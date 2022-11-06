@@ -46,6 +46,7 @@ public class GameObject implements Serializable {
     public boolean intergamePortal;
     public String dungeonName;
 
+    public List<SubAttack> subAttacks = new ArrayList<>();
     public List<Projectile> projectiles = new ArrayList<>();
 
     public boolean item;

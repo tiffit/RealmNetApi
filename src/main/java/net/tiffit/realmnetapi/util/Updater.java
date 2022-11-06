@@ -7,7 +7,9 @@ import net.tiffit.realmnetapi.api.event.PlayerShootEvent;
 import net.tiffit.realmnetapi.assets.ConditionEffect;
 import net.tiffit.realmnetapi.assets.ItemType;
 import net.tiffit.realmnetapi.assets.xml.GameObject;
+import net.tiffit.realmnetapi.assets.xml.SubAttack;
 import net.tiffit.realmnetapi.assets.xml.XMLLoader;
+import net.tiffit.realmnetapi.map.RMap;
 import net.tiffit.realmnetapi.map.object.GameObjectState;
 import net.tiffit.realmnetapi.map.object.RObject;
 import net.tiffit.realmnetapi.map.object.StatType;
@@ -17,6 +19,7 @@ import net.tiffit.realmnetapi.net.RealmNetworker;
 import net.tiffit.realmnetapi.net.packet.out.PlayerShootPacketOut;
 import net.tiffit.realmnetapi.util.math.Vec2f;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class Updater implements Runnable {
@@ -25,8 +28,8 @@ public class Updater implements Runnable {
 
     private RealmNetworker net;
 
-    public int attack_period = 0;
-    public long attack_start = 0;
+    public HashMap<Integer, AttackTracker> attacks = new HashMap<>();
+    public int current_item = 0;
     public int next_bullet_id = 1;
 
     public Updater(RealmNetworker net){
@@ -120,43 +123,21 @@ public class Updater implements Runnable {
                 GameObject go = XMLLoader.OBJECTS.get(heldStat);
                 ItemType type = ItemType.byID(go.slotType);
                 if(type == ItemType.SWORD_TYPE || type == ItemType.DAGGER_TYPE || type == ItemType.BOW_TYPE || type == ItemType.WAND_TYPE || type == ItemType.STAFF_TYPE || type == ItemType.KATANA_TYPE){
-                    attack_period = (int)Math.ceil((1 / attackFrequency(playerState) * (1 / go.rateOfFire)));
-                    int ms = RealmNetworker.getTime();
-                    if (ms <= attack_start + attack_period) {
-                        return;
-                    }
-                    attack_start = ms;
-                    float arcGap = (float) Math.toRadians(go.arcGap);
-                    float angle = decider.getAngleRads(go, arcGap);
-                    Vec2f shootPos = net.map.getPlayerPos().getPos().add(Vec2f.rotate(0.3f, angle));
-
-                    for (int i = 0; i < go.numProjectiles; i++) {
-                        short bulletId = (short) getBulletId();
-                        ProjectileState state = new ProjectileState();
-                        state.ownerId = net.map.getObjectId();
-                        state.bulletId = bulletId;
-                        state.team = ProjectileState.ProjectileTeam.SELF;
-                        state.angle = angle + arcGap * i;
-                        state.startX = shootPos.x();
-                        state.startY = shootPos.y();
-                        state.proj = go.projectiles.get(0);
-                        state.numShots = (byte) go.numProjectiles;
-                        state.angleInc = arcGap;
-                        state.damage = (short) (attackMultiplier(playerState) * net.map.getRandom().nextIntRange(state.proj.minDamage, state.proj.maxDamage));
-                        String objId = state.proj.objectId;
-                        state.obj = null;
-                        for (GameObject obj : XMLLoader.OBJECTS.values()) {
-                            if (obj.id.equals(objId)) {
-                                state.obj = obj;
-                                break;
+                    if(heldStat != current_item){
+                        if(go.subAttacks.isEmpty()){
+                            attacks.put(0, new AttackTracker().noSubAttacks(go));
+                        }else{
+                            for (SubAttack subAttack : go.subAttacks) {
+                                AttackTracker tracker = new AttackTracker();
+                                tracker.attack = subAttack;
+                                attacks.put(subAttack.index, tracker);
                             }
                         }
-                        RProjectile proj = RProjectile.create(net, state);
-                        proj.startTime = ms;
-                        PlayerShootPacketOut packet = new PlayerShootPacketOut(ms, bulletId, (short)go.type, (byte)-1, shootPos, angle, false);
-                        net.send(packet);
+                        current_item = heldStat;
                     }
-                    EventHandler.executeEvent(new PlayerShootEvent(angle, go, type));
+                    float arcGap = (float) Math.toRadians(go.arcGap);
+                    float angle = decider.getAngleRads(go, arcGap);
+                    attacks.values().forEach(attackTracker -> attackTracker.attack(angle, net, go, type, playerState));
                 }
             }
         }
@@ -188,6 +169,65 @@ public class Updater implements Runnable {
             mult *= 1.25;
         }
         return mult;
+    }
+
+    private class AttackTracker {
+        public int attack_period = 0;
+        public long attack_start = 0;
+        public SubAttack attack;
+
+        public AttackTracker noSubAttacks(GameObject go){
+            attack = new SubAttack();
+            attack.index = -1;
+            attack.numProjectiles = go.numProjectiles;
+            attack.projectileId = 0;
+            attack.rateOfFire = go.rateOfFire;
+            attack.defaultAngleDeg = 0;
+            attack.posOffset = Vec2f.ZERO;
+            return this;
+        }
+
+        public void attack(float angle, RealmNetworker net, GameObject go, ItemType type, GameObjectState playerState){
+            attack_period = (int)Math.ceil((1 / attackFrequency(playerState) * (1 / attack.rateOfFire)));
+            int ms = RealmNetworker.getTime();
+            if (ms <= attack_start + attack_period) {
+                return;
+            }
+            angle += (float)Math.toRadians(attack.defaultAngleDeg);
+            attack_start = ms;
+            RMap map = net.map;
+            float arcGap = (float) Math.toRadians(go.arcGap);
+            Vec2f shootPos = map.getPlayerPos().getPos();
+            if(!attack.posOffset.isZero()){
+                double offsetAngle = Math.atan2(attack.posOffset.x(), attack.posOffset.y()) + angle;
+                float magnitude = (float) Math.sqrt(attack.posOffset.distanceSqr(Vec2f.ZERO));
+                shootPos = shootPos.add(new Vec2f((float) Math.cos(offsetAngle) * magnitude, (float) Math.sin(offsetAngle) * magnitude));
+            }
+            shootPos = shootPos.add(Vec2f.rotate(0.3f, angle));
+
+            for (int i = 0; i < attack.numProjectiles; i++) {
+                short bulletId = (short) getBulletId();
+                ProjectileState state = new ProjectileState();
+                state.ownerId = map.getObjectId();
+                state.bulletId = bulletId;
+                state.team = ProjectileState.ProjectileTeam.SELF;
+                state.angle = angle + arcGap * i;
+                state.startX = shootPos.x();
+                state.startY = shootPos.y();
+                state.proj = go.projectiles.get(0);
+                state.numShots = (byte) attack.numProjectiles;
+                state.angleInc = arcGap;
+                state.damage = (short) (attackMultiplier(playerState) * map.getRandom().nextIntRange(state.proj.minDamage, state.proj.maxDamage));
+                String objId = state.proj.objectId;
+                state.obj = XMLLoader.ID_TO_OBJECT.getOrDefault(objId, null);
+
+                RProjectile proj = RProjectile.create(net, state);
+                proj.startTime = ms;
+                PlayerShootPacketOut packet = new PlayerShootPacketOut(ms, bulletId, (short)go.type, (byte)attack.index, shootPos, angle, false);
+                net.send(packet);
+            }
+            EventHandler.executeEvent(new PlayerShootEvent(angle, go, type));
+        }
     }
 
 }

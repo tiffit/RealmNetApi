@@ -6,7 +6,7 @@ public interface IObjectListener<T> {
 
     void objectKill();
 
-    class EmptyObjectListener<T> implements IObjectListener {
+    class EmptyObjectListener<T> implements IObjectListener<T> {
 
         public EmptyObjectListener(T obj){
 

@@ -29,6 +29,7 @@ public abstract class RotMGPacketIn {
         PACKET_MAP.put(49, AllyShootPacketIn::new);
         PACKET_MAP.put(62, UpdatePacketIn::new);
         PACKET_MAP.put(64, AoePacketIn::new);
+        PACKET_MAP.put(69, ClientStatPacketIn::new);
         PACKET_MAP.put(75, DamagePacketIn::new);
         PACKET_MAP.put(82, QuestObjectIdPacketIn::new);
         PACKET_MAP.put(84, RealmHeroesLeftPacketIn::new);

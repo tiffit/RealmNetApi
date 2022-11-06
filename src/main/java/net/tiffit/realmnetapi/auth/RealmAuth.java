@@ -21,7 +21,6 @@ public class RealmAuth {
 
     private static final String GAME_PLATFORM = "Unity";
     private static final String GAME_NET = GAME_PLATFORM;
-    private static final String BASE_URL = RealmNetApi.ENV.baseUrl;//"https://www.realmofthemadgod.com/";
 
     private static final DocumentBuilder builder;
     static {
@@ -35,7 +34,7 @@ public class RealmAuth {
     private static final OkHttpClient client = new OkHttpClient();
 
     @SneakyThrows
-    public static AccessToken authenticate(String email, String password){
+    public static AccessToken authenticate(RotmgEnv env, String email, String password){
         RequestBody requestBody = new FormBody.Builder()
                 .add("guid", email)
                 .add("password", password)
@@ -43,7 +42,7 @@ public class RealmAuth {
                 .add("play_platform", GAME_PLATFORM)
                 .add("clientToken", RealmNetApi.CLIENT_TOKEN)
                 .build();
-        Request request = new Request.Builder().url(BASE_URL + "account/verify").post(requestBody).header("User-Agent", "UnityPlayer/2021.3.5f1 (UnityWebRequest/1.0, libcurl/7.80.0-DEV)").build();
+        Request request = new Request.Builder().url(env.baseUrl + "account/verify").post(requestBody).header("User-Agent", "UnityPlayer/2021.3.5f1 (UnityWebRequest/1.0, libcurl/7.80.0-DEV)").build();
         ResponseBody response = client.newCall(request).execute().body();
         assert response != null;
         Document doc = builder.parse(response.byteStream());
@@ -51,7 +50,7 @@ public class RealmAuth {
     }
 
     @SneakyThrows
-    public static AccessToken authenticate(AccessToken token){
+    public static AccessToken authenticate(RotmgEnv env, AccessToken token){
         RequestBody requestBody = new FormBody.Builder()
                 .add("guid", token.getEmail())
                 .add("clientToken", RealmNetApi.CLIENT_TOKEN)
@@ -59,7 +58,7 @@ public class RealmAuth {
                 .add("game_net", GAME_NET)
                 .add("play_platform", GAME_PLATFORM)
                 .build();
-        Request request = new Request.Builder().url(BASE_URL + "account/verify").post(requestBody).header("User-Agent", "UnityPlayer/2021.3.5f1 (UnityWebRequest/1.0, libcurl/7.80.0-DEV)").build();
+        Request request = new Request.Builder().url(env.baseUrl + "account/verify").post(requestBody).header("User-Agent", "UnityPlayer/2021.3.5f1 (UnityWebRequest/1.0, libcurl/7.80.0-DEV)").build();
         ResponseBody response = client.newCall(request).execute().body();
         assert response != null;
         Document doc = builder.parse(response.byteStream());
@@ -78,14 +77,14 @@ public class RealmAuth {
     }
 
     @SneakyThrows
-    public static boolean verifyAccessTokenClient(AccessToken token){
+    public static boolean verifyAccessTokenClient(RotmgEnv env, AccessToken token){
         RequestBody requestBody = new FormBody.Builder()
                 .add("clientToken", RealmNetApi.CLIENT_TOKEN)
                 .add("accessToken", token.getToken())
                 .add("game_net", GAME_NET)
                 .add("play_platform", GAME_PLATFORM)
                 .build();
-        Request request = new Request.Builder().url(BASE_URL + "account/verifyAccessTokenClient").post(requestBody).header("User-Agent", "UnityPlayer/2021.3.5f1 (UnityWebRequest/1.0, libcurl/7.80.0-DEV)").build();
+        Request request = new Request.Builder().url(env.baseUrl + "account/verifyAccessTokenClient").post(requestBody).header("User-Agent", "UnityPlayer/2021.3.5f1 (UnityWebRequest/1.0, libcurl/7.80.0-DEV)").build();
         ResponseBody response = client.newCall(request).execute().body();
         assert response != null;
         Document doc = builder.parse(response.byteStream());
@@ -95,14 +94,14 @@ public class RealmAuth {
     }
 
     @SneakyThrows
-    public static List<PlayerChar> charList(AccessToken token){
+    public static List<PlayerChar> charList(RotmgEnv env, AccessToken token){
         RequestBody requestBody = new FormBody.Builder()
                 .add("do_login", "true")
                 .add("accessToken", token.getToken())
                 .add("game_net", GAME_NET)
                 .add("play_platform", GAME_PLATFORM)
                 .build();
-        Request request = new Request.Builder().url(BASE_URL + "char/list").post(requestBody).header("User-Agent", "UnityPlayer/2021.3.5f1 (UnityWebRequest/1.0, libcurl/7.80.0-DEV)").build();
+        Request request = new Request.Builder().url(env.baseUrl + "char/list").post(requestBody).header("User-Agent", "UnityPlayer/2021.3.5f1 (UnityWebRequest/1.0, libcurl/7.80.0-DEV)").build();
         ResponseBody response = client.newCall(request).execute().body();
         assert response != null;
         Document doc = builder.parse(response.byteStream());
@@ -110,36 +109,39 @@ public class RealmAuth {
         NodeList charsNodes = doc.getDocumentElement().getChildNodes();
 
         List<PlayerChar> chars = new LinkedList<>();
-
-        for(int i = 0; i < charsNodes.getLength(); i++){
-            Element charElem = (Element) charsNodes.item(i);
-            if(!charElem.getTagName().equals("Char"))continue;
-            NodeList charNodes = charElem.getChildNodes();
-            int id = Integer.parseInt(charElem.getAttribute("id"));
-            int objectType = 0, level = 0;
-            int[] equipment = null;
-            for(int j = 0; j < charNodes.getLength(); j++){
-                Element elem = (Element) charNodes.item(j);
-                switch (elem.getNodeName()) {
-                    case "ObjectType" -> objectType = Integer.parseInt(elem.getTextContent());
-                    case "Level" -> level = Integer.parseInt(elem.getTextContent());
-                    case "Equipment" -> equipment = Arrays.stream(elem.getTextContent().split(",")).mapToInt(Integer::parseInt).toArray();
+        try {
+            for (int i = 0; i < charsNodes.getLength(); i++) {
+                Element charElem = (Element) charsNodes.item(i);
+                if (!charElem.getTagName().equals("Char")) continue;
+                NodeList charNodes = charElem.getChildNodes();
+                int id = Integer.parseInt(charElem.getAttribute("id"));
+                int objectType = 0, level = 0;
+                int[] equipment = null;
+                for (int j = 0; j < charNodes.getLength(); j++) {
+                    Element elem = (Element) charNodes.item(j);
+                    switch (elem.getNodeName()) {
+                        case "ObjectType" -> objectType = Integer.parseInt(elem.getTextContent());
+                        case "Level" -> level = Integer.parseInt(elem.getTextContent());
+                        case "Equipment" -> equipment = Arrays.stream(elem.getTextContent().split(",")).mapToInt(Integer::parseInt).toArray();
+                    }
                 }
+                chars.add(new PlayerChar(id, objectType, level, equipment));
             }
-            chars.add(new PlayerChar(id, objectType, level, equipment));
+        }catch (Exception ex){
+            ex.printStackTrace();
         }
         return chars;
     }
 
     @SneakyThrows
-    public static void appInit(AccessToken token){
+    public static void appInit(RotmgEnv env, AccessToken token){
         RequestBody requestBody = new FormBody.Builder()
                 .add("game_net", "rotmg")
                 .add("accessToken", token.getToken())
                 .add("game_net", GAME_NET)
                 .add("play_platform", GAME_PLATFORM)
                 .build();
-        Request request = new Request.Builder().url(BASE_URL + "app/init?platform=standalonewindows64&key=9KnJFxtTvLu2frXv").post(requestBody).header("User-Agent", "UnityPlayer/2021.3.5f1 (UnityWebRequest/1.0, libcurl/7.80.0-DEV)").build();
+        Request request = new Request.Builder().url(env.baseUrl + "app/init?platform=standalonewindows64&key=9KnJFxtTvLu2frXv").post(requestBody).header("User-Agent", "UnityPlayer/2021.3.5f1 (UnityWebRequest/1.0, libcurl/7.80.0-DEV)").build();
         ResponseBody response = client.newCall(request).execute().body();
         assert response != null;
         System.out.println(response.string());
@@ -147,14 +149,14 @@ public class RealmAuth {
     }
 
     @SneakyThrows
-    public static List<ServerInfo> getServers(AccessToken token){
+    public static List<ServerInfo> getServers(RotmgEnv env, AccessToken token){
         List<ServerInfo> servers = new ArrayList<>();
         RequestBody requestBody = new FormBody.Builder()
                 .add("accessToken", token.getToken())
                 .add("game_net", GAME_NET)
                 .add("play_platform", GAME_PLATFORM)
                 .build();
-        Request request = new Request.Builder().url(BASE_URL + "account/servers").post(requestBody).header("User-Agent", "UnityPlayer/2021.3.5f1 (UnityWebRequest/1.0, libcurl/7.80.0-DEV)").build();
+        Request request = new Request.Builder().url(env.baseUrl + "account/servers").post(requestBody).header("User-Agent", "UnityPlayer/2021.3.5f1 (UnityWebRequest/1.0, libcurl/7.80.0-DEV)").build();
         ResponseBody response = client.newCall(request).execute().body();
         assert response != null;
         Document doc = builder.parse(response.byteStream());

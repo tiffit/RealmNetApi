@@ -19,6 +19,10 @@ public class NetworkLogger {
     public NetworkLogger(RealmNetworker net){
         this.net = net;
         File log = new File("./debug/");
+        if(!log.exists()){
+            //noinspection ResultOfMethodCallIgnored
+            log.mkdir();
+        }
         for (File file : Objects.requireNonNull(log.listFiles())) {
             //noinspection ResultOfMethodCallIgnored
             file.delete();
