@@ -25,7 +25,7 @@ public enum StatType {
         DEFENSE(21),
         SPEED(22),
         UNKNOWN_23(23),
-        UNKNOWN_24(24),
+        SEASONAL_CHARACTER(24),
         TEXTURE(25),
         VITALITY(26),
         WISDOM(27),

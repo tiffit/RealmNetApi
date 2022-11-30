@@ -15,6 +15,9 @@ public class SubAttack implements Serializable {
     public float rateOfFire = 1;
     public Vec2f posOffset = Vec2f.ZERO;
     public float defaultAngleDeg = 0;
+    public int burstCount = 0;
+    public float burstDelay = 0;
+    public float burstMinDelay = 0;
 
     public void load(Element element){
         projectileId = element.hasAttribute("projectileId") ? Integer.parseInt(element.getAttribute("projectileId")) : 0;
@@ -30,6 +33,9 @@ public class SubAttack implements Serializable {
                         posOffset = new Vec2f(Float.parseFloat(offsetStr[0]), Float.parseFloat(offsetStr[1]));
                     }
                     case "DefaultAngle" -> defaultAngleDeg = Float.parseFloat(elem.getTextContent());
+                    case "BurstCount" -> burstCount = Integer.parseInt(elem.getTextContent());
+                    case "BurstDelay" -> burstDelay = Float.parseFloat(elem.getTextContent());
+                    case "BurstMinDelay" -> burstMinDelay = Float.parseFloat(elem.getTextContent());
                 }
             }
         }

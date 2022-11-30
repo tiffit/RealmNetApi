@@ -174,6 +174,7 @@ public class Updater implements Runnable {
     private class AttackTracker {
         public int attack_period = 0;
         public long attack_start = 0;
+        public int burstCount = 0;
         public SubAttack attack;
 
         public AttackTracker noSubAttacks(GameObject go){
@@ -192,6 +193,18 @@ public class Updater implements Runnable {
             int ms = RealmNetworker.getTime();
             if (ms <= attack_start + attack_period) {
                 return;
+            }
+            if(attack.burstCount > 0){
+                if(burstCount == 0) {
+                    float dexScalar = Math.min(75f, playerState.getDexterity()) / 75f;
+                    float burstDelay = attack.burstDelay - dexScalar * (attack.burstDelay - attack.burstMinDelay);
+                    if (ms <= attack_start + burstDelay) {
+                        return;
+                    }
+                    burstCount = attack.burstCount;
+                }else{
+                    burstCount--;
+                }
             }
             angle += (float)Math.toRadians(attack.defaultAngleDeg);
             attack_start = ms;
