@@ -2,7 +2,6 @@ package net.tiffit.realmnetapi.map;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.tiffit.realmnetapi.api.Hooks;
 import net.tiffit.realmnetapi.api.IPlayerPosTracker;
 import net.tiffit.realmnetapi.api.event.EventHandler;
 import net.tiffit.realmnetapi.api.event.TileAddEvent;
@@ -11,6 +10,7 @@ import net.tiffit.realmnetapi.map.object.GameObjectState;
 import net.tiffit.realmnetapi.map.object.RObject;
 import net.tiffit.realmnetapi.map.object.RotMGEntityList;
 import net.tiffit.realmnetapi.map.projectile.RotMGProjectileList;
+import net.tiffit.realmnetapi.net.RealmNetworker;
 import net.tiffit.realmnetapi.util.RotMGRandom;
 import net.tiffit.realmnetapi.util.math.Vec2f;
 import net.tiffit.realmnetapi.util.math.Vec2i;
@@ -22,6 +22,7 @@ import java.util.List;
 @Getter
 public class RMap {
 
+    private final RealmNetworker net;
     private final int width, height;
     private final RotMGEntityList entityList = new RotMGEntityList();
     private final RotMGProjectileList projectileList = new RotMGProjectileList();
@@ -36,7 +37,7 @@ public class RMap {
     private int objectId;
     @Setter
     private GameObjectState selfState;
-    private final IPlayerPosTracker playerPos = Hooks.PlayerPosTracker.get();
+    private final IPlayerPosTracker playerPos;
 
     @Setter
     private int lastTickId = -1;
@@ -47,7 +48,8 @@ public class RMap {
     @Setter
     private int questObjectId = -1;
 
-    public RMap(int width, int height, String name, String displayName, String realmName, boolean allowTeleport) {
+    public RMap(RealmNetworker net, int width, int height, String name, String displayName, String realmName, boolean allowTeleport) {
+        this.net = net;
         this.width = width;
         this.height = height;
         this.name = name;
@@ -56,6 +58,8 @@ public class RMap {
         this.allowTeleport = allowTeleport;
         tiles = new Ground[width][height];
         staticObjects = new RObject[width][height];
+
+        playerPos = net.hooks.PlayerPosTracker.get();
     }
 
     public void setTiles(HashMap<Vec2i, Ground> newTiles){

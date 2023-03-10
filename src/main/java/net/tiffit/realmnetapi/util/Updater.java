@@ -1,6 +1,5 @@
 package net.tiffit.realmnetapi.util;
 
-import net.tiffit.realmnetapi.api.Hooks;
 import net.tiffit.realmnetapi.api.IShootDecider;
 import net.tiffit.realmnetapi.api.event.EventHandler;
 import net.tiffit.realmnetapi.api.event.PlayerShootEvent;
@@ -114,7 +113,7 @@ public class Updater implements Runnable {
     }
 
     private void attemptShoot(){
-        IShootDecider decider = Hooks.ShootDecider;
+        IShootDecider decider = net.hooks.ShootDecider;
         if(decider != null && decider.shouldShoot()){
             GameObjectState playerState = net.map.getSelfState();
             if(playerState.hasEffect(ConditionEffect.STUNNED) || playerState.hasEffect(ConditionEffect.PETRIFIED))return;

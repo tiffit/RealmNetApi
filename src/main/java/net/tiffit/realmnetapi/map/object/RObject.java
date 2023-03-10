@@ -1,7 +1,6 @@
 package net.tiffit.realmnetapi.map.object;
 
 import lombok.Getter;
-import net.tiffit.realmnetapi.api.Hooks;
 import net.tiffit.realmnetapi.api.IObjectListener;
 import net.tiffit.realmnetapi.assets.xml.GameObject;
 import net.tiffit.realmnetapi.assets.xml.XMLLoader;
@@ -30,7 +29,7 @@ public class RObject {
         this.map = map;
         this.gameObject = XMLLoader.OBJECTS.get(state.type);
         spawnAt(state.position.x(), state.position.y());
-        listener = Hooks.ObjectListener.apply(this);
+        listener = map.getNet().hooks.ObjectListener.apply(this);
     }
 
     public void mergeState(GameObjectState state){

@@ -11,10 +11,10 @@ import java.util.function.Supplier;
 
 public class Hooks {
 
-    public static Supplier<IPlayerPosTracker> PlayerPosTracker = IPlayerPosTracker.BasicPlayerPosTracker::new;
-    public static BiFunction<GameObjectState, RMap, RObject> RObjectFunc = RObject::new;
-    public static Function<RObject, IObjectListener<RObject>> ObjectListener = IObjectListener.EmptyObjectListener::new;
-    public static Function<RProjectile, IObjectListener<RProjectile>> ProjectileListener = IObjectListener.EmptyObjectListener::new;
-    public static IShootDecider ShootDecider = new IShootDecider.ShootDecider();
-    public static int CharacterId = 0;
+    public Supplier<IPlayerPosTracker> PlayerPosTracker = IPlayerPosTracker.BasicPlayerPosTracker::new;
+    public BiFunction<GameObjectState, RMap, RObject> RObjectFunc = RObject::new;
+    public Function<RObject, IObjectListener<RObject>> ObjectListener = IObjectListener.EmptyObjectListener::new;
+    public Function<RProjectile, IObjectListener<RProjectile>> ProjectileListener = IObjectListener.EmptyObjectListener::new;
+    public IShootDecider ShootDecider = new IShootDecider.ShootDecider();
+    public int CharacterId = 0;
 }

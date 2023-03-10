@@ -50,8 +50,8 @@ public class MapInfoPacketIn extends RotMGPacketIn {
 
     @Override
     public void handle(RealmNetworker net) throws IOException {
-        net.send(new LoadPacketOut());
-        net.map = new RMap(width, height, name, displayName, realmName, allowPlayerTeleport);
+        net.send(new LoadPacketOut(net.hooks.CharacterId));
+        net.map = new RMap(net, width, height, name, displayName, realmName, allowPlayerTeleport);
         net.map.setRandom(new RotMGRandom(seed));
     }
 }

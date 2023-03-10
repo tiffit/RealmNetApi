@@ -1,6 +1,5 @@
 package net.tiffit.realmnetapi.map.projectile;
 
-import net.tiffit.realmnetapi.api.Hooks;
 import net.tiffit.realmnetapi.api.IObjectListener;
 import net.tiffit.realmnetapi.api.event.EnemyHitEvent;
 import net.tiffit.realmnetapi.api.event.EventHandler;
@@ -55,7 +54,7 @@ public class RProjectile {
     }
 
     private RProjectile(RealmNetworker net, ProjectileState state){
-        listener = Hooks.ProjectileListener.apply(this);
+        listener = net.hooks.ProjectileListener.apply(this);
         this.net = net;
         this.state = state;
         this.effectiveLifetime = state.lifetimeMult * state.proj.lifetimeMS;

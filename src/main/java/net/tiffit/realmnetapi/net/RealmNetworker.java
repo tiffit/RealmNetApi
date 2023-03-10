@@ -1,6 +1,7 @@
 package net.tiffit.realmnetapi.net;
 
 import lombok.SneakyThrows;
+import net.tiffit.realmnetapi.api.Hooks;
 import net.tiffit.realmnetapi.api.PlayerController;
 import net.tiffit.realmnetapi.auth.AccessToken;
 import net.tiffit.realmnetapi.map.RMap;
@@ -46,11 +47,14 @@ public class RealmNetworker {
     public NetworkLogger logger;
     public Updater updater;
 
+    public final Hooks hooks;
+
     private final LinkedBlockingQueue<Tuple<RotMGPacketOut, byte[]>> packets = new LinkedBlockingQueue<>();
 
     @SneakyThrows
-    public RealmNetworker(ConnectionAddress address){
+    public RealmNetworker(ConnectionAddress address, Hooks hooks){
         this.address = address;
+        this.hooks = hooks;
         RotMGPacketIn.init();
         this.logger = new NetworkLogger(this);
         this.socket = new Socket();

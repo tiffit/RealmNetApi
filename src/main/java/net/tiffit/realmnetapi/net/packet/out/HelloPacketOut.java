@@ -21,7 +21,7 @@ public class HelloPacketOut extends RotMGPacketOut {
 
     public HelloPacketOut(String accessToken, int gameId, byte[] key, int keyTime) {
         super((byte)1);
-        this.buildVersion = "3.2.2.0.0";
+        this.buildVersion = "3.3.4.1.0";
         this.gameId = gameId;
         this.accessToken = accessToken;
         this.keyTime = keyTime;

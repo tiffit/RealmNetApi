@@ -1,6 +1,5 @@
 package net.tiffit.realmnetapi.net.packet.out;
 
-import net.tiffit.realmnetapi.api.Hooks;
 import net.tiffit.realmnetapi.net.packet.RotMGPacketOut;
 
 import java.io.DataOutput;
@@ -8,12 +7,15 @@ import java.io.IOException;
 
 public class LoadPacketOut extends RotMGPacketOut {
 
-    public LoadPacketOut() {
+    private final int characterId;
+
+    public LoadPacketOut(int characterId) {
         super((byte)57);
+        this.characterId = characterId;
     }
     @Override
     public void write(DataOutput out) throws IOException {
-        out.writeInt(Hooks.CharacterId);
+        out.writeInt(characterId);
         out.writeBoolean(false);
     }
 }
