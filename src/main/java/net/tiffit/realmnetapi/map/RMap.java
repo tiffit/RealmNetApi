@@ -3,7 +3,6 @@ package net.tiffit.realmnetapi.map;
 import lombok.Getter;
 import lombok.Setter;
 import net.tiffit.realmnetapi.api.IPlayerPosTracker;
-import net.tiffit.realmnetapi.api.event.EventHandler;
 import net.tiffit.realmnetapi.api.event.TileAddEvent;
 import net.tiffit.realmnetapi.assets.xml.Ground;
 import net.tiffit.realmnetapi.map.object.GameObjectState;
@@ -65,7 +64,7 @@ public class RMap {
     public void setTiles(HashMap<Vec2i, Ground> newTiles){
         if(newTiles.size() > 0){
             newTiles.forEach((vec2i, ground) -> tiles[vec2i.x()][vec2i.y()] = ground);
-            EventHandler.executeEvent(new TileAddEvent(this, newTiles));
+            net.eventHandler.executeEvent(new TileAddEvent(this, newTiles));
         }
     }
 

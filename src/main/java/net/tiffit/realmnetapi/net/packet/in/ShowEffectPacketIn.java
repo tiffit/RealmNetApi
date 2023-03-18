@@ -1,6 +1,5 @@
 package net.tiffit.realmnetapi.net.packet.in;
 
-import net.tiffit.realmnetapi.api.event.EventHandler;
 import net.tiffit.realmnetapi.api.event.ShowEffectEvent;
 import net.tiffit.realmnetapi.net.RealmNetworker;
 import net.tiffit.realmnetapi.net.packet.RotMGPacketIn;
@@ -89,7 +88,7 @@ public class ShowEffectPacketIn extends RotMGPacketIn {
 
     @Override
     public void handle(RealmNetworker net) throws IOException {
-        net.ackHandler.add(() -> EventHandler.executeEvent(new ShowEffectEvent(this)));
+        net.ackHandler.add(() -> net.eventHandler.executeEvent(new ShowEffectEvent(this)));
     }
 
     @Override

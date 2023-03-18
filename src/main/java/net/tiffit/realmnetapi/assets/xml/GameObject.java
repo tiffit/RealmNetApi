@@ -71,4 +71,8 @@ public class GameObject implements Serializable {
 
     public Map<Integer, Style> styles = new HashMap<>();
 
+    public String getEffectiveName(){
+        return displayid.isEmpty() ? id : displayid;
+    }
+
 }

@@ -12,6 +12,8 @@ import java.util.concurrent.locks.ReentrantLock;
 public class NetworkLogger {
 
     private boolean saved = false;
+
+    public boolean enabled = true;
     private RealmNetworker net;
     private HashMap<String, ArrayList<String>>values = new HashMap<>();
     private ReentrantLock lock = new ReentrantLock();
@@ -38,6 +40,7 @@ public class NetworkLogger {
     }
 
     public void write(String file, String line){
+        if(!enabled)return;
         lock.lock();
         if(!values.containsKey(file))values.put(file, new ArrayList<>());
         values.get(file).add(line);

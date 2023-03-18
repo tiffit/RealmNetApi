@@ -29,18 +29,21 @@ public class XMLLoader {
     private static DocumentBuilder docbuilder;
     private static XPath xPath;
 
-    @SneakyThrows
     public static void loadAllXml(){
-        File f = new File("./assets/xml/");
-        if(f.exists()){
-            for (File file : Objects.requireNonNull(f.listFiles((dir, name) -> name.endsWith(".xml")))) {
+        loadAllXml(new File("./assets/xml/"));
+    }
+
+    @SneakyThrows
+    public static void loadAllXml(File xmlFolder){
+        if(xmlFolder.exists()){
+            for (File file : Objects.requireNonNull(xmlFolder.listFiles((dir, name) -> name.endsWith(".xml")))) {
                 try(Stream<String> lines = Files.lines(file.toPath())){
                     String output = lines.collect(Collectors.joining("\n"));
                     parse(output, file.getName());
                 }
             }
         }else{
-            System.out.println("File does not exist: " + f.getAbsolutePath());
+            System.out.println("File does not exist: " + xmlFolder.getAbsolutePath());
         }
         System.out.println("Loaded " + GROUNDS.size() + " grounds, " + OBJECTS.size() + " objects");
     }

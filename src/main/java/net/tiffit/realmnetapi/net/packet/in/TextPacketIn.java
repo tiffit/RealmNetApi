@@ -1,7 +1,6 @@
 package net.tiffit.realmnetapi.net.packet.in;
 
 import net.tiffit.realmnetapi.api.event.ChatEvent;
-import net.tiffit.realmnetapi.api.event.EventHandler;
 import net.tiffit.realmnetapi.net.RealmNetworker;
 import net.tiffit.realmnetapi.net.packet.RotMGPacketIn;
 
@@ -35,7 +34,7 @@ public class TextPacketIn extends RotMGPacketIn {
 
     @Override
     public void handle(RealmNetworker net) throws IOException {
-        EventHandler.executeEvent(new ChatEvent(this));
+        net.eventHandler.executeEvent(new ChatEvent(this));
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.google.gson.stream.JsonReader;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,8 +16,12 @@ public class LangLoader {
     private static Gson gson = new GsonBuilder().setLenient().create();
 
     public static void load() throws IOException {
+        load(new FileReader("./assets/loc.json"));
+    }
+
+    public static void load(Reader reader) throws IOException {
         langMap.clear();
-        JsonObject obj = gson.fromJson(new FileReader("./assets/loc.json"), JsonObject.class);
+        JsonObject obj = gson.fromJson(reader, JsonObject.class);
         for (String s : obj.keySet()) {
             langMap.put(s, obj.get(s).getAsString());
         }

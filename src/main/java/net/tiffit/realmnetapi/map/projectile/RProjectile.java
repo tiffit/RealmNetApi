@@ -2,7 +2,6 @@ package net.tiffit.realmnetapi.map.projectile;
 
 import net.tiffit.realmnetapi.api.IObjectListener;
 import net.tiffit.realmnetapi.api.event.EnemyHitEvent;
-import net.tiffit.realmnetapi.api.event.EventHandler;
 import net.tiffit.realmnetapi.assets.ConditionEffect;
 import net.tiffit.realmnetapi.assets.xml.GameObject;
 import net.tiffit.realmnetapi.assets.xml.Projectile;
@@ -54,11 +53,11 @@ public class RProjectile {
     }
 
     private RProjectile(RealmNetworker net, ProjectileState state){
-        listener = net.hooks.ProjectileListener.apply(this);
         this.net = net;
         this.state = state;
         this.effectiveLifetime = state.lifetimeMult * state.proj.lifetimeMS;
         this.effectiveSpeed = state.speedMult * state.proj.speed;
+        listener = net.hooks.ProjectileListener.apply(this);
     }
 
     public static RProjectile create(RealmNetworker net, ProjectileState state){
@@ -112,12 +111,12 @@ public class RProjectile {
                 if (hitState.objectId == map.getObjectId()) {
                     net.send(new PlayerHitPacketOut((short) state.bulletId, state.ownerId));
                     int damage = damageWithDefense(state.damage, hitState.getDefense(), state.proj.armorPierce, hitState);
-                    EventHandler.executeEvent(new EnemyHitEvent(this, hitState, damage, false));
+                    net.eventHandler.executeEvent(new EnemyHitEvent(this, hitState, damage, false));
                 } else if (hitGo.enemy) {
                     int damage = damageWithDefense(state.damage, hitState.getDefense(), state.proj.armorPierce, hitState);
                     boolean kill = hitState.getHP() <= damage;
                     net.send(new EnemyHitPacketOut(gameTime, (short) state.bulletId, map.getObjectId(), hitState.objectId, kill, map.getObjectId()));
-                    EventHandler.executeEvent(new EnemyHitEvent(this, hitState, damage, kill));
+                    net.eventHandler.executeEvent(new EnemyHitEvent(this, hitState, damage, kill));
                     //RObject re = map.getEntityList().get(hitState.objectId);
                     //if(damage != 0)re.createDamageTextDark(damage);
                     //re.playDamage(kill);

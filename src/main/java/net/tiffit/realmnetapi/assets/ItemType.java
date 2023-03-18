@@ -31,7 +31,9 @@ public enum ItemType {
     SHURIKEN_TYPE(25),
     EGG_TYPE(26),
     WAKI_TYPE(27),
-    LUTE_TYPE(28);
+    LUTE_TYPE(28),
+    MACE_TYPE(29),
+    SHEATH_TYPE(30);
 
     private int id;
 

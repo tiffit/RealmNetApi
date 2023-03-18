@@ -1,5 +1,6 @@
 package net.tiffit.realmnetapi.map.object;
 
+import com.google.common.collect.Sets;
 import net.tiffit.realmnetapi.assets.ConditionEffect;
 import net.tiffit.realmnetapi.assets.xml.GameObject;
 import net.tiffit.realmnetapi.assets.xml.XMLLoader;
@@ -9,7 +10,9 @@ import net.tiffit.realmnetapi.util.math.Vec2f;
 import java.io.DataInput;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.Set;
 
 public class GameObjectState {
 
@@ -19,6 +22,7 @@ public class GameObjectState {
     private GameObject go;
     public HashMap<StatType, Integer> STATS_INT = new HashMap<>();
     public HashMap<StatType, String> STATS_STR = new HashMap<>();
+    public EnumSet<StatType> STATS = EnumSet.noneOf(StatType.class);
 
     public GameObjectState(int type, int objectId, Vec2f pos){
         this.type = type;
@@ -37,20 +41,25 @@ public class GameObjectState {
 
     public void setStat(StatType type, int val){
         STATS_INT.put(type, val);
+        STATS.add(type);
     }
 
     public void setStat(StatType type, String val){
         STATS_STR.put(type, val);
+        STATS.add(type);
     }
 
     public boolean hasStat(StatType stat){
-        if(stat.stringType)return STATS_STR.containsKey(stat);
-        return STATS_INT.containsKey(stat);
+        return STATS.contains(stat);
     }
 
     public <T> T getStat(StatType stat){
         if(stat.stringType)return (T) STATS_STR.get(stat);
         return (T) STATS_INT.get(stat);
+    }
+
+    public Set<StatType> getAllStatTypes(){
+        return Sets.immutableEnumSet(STATS);
     }
 
     public GameObject getGameObject(){

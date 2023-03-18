@@ -11,14 +11,14 @@ import java.util.function.Consumer;
 
 public class EventHandler {
 
-    private static HashMap<Class<?>, List<Consumer<?>>> eventListeners = new HashMap<>();
-    private static List<Consumer<?>> EMPTY = new ArrayList<>(0);
+    private HashMap<Class<?>, List<Consumer<?>>> eventListeners = new HashMap<>();
+    private List<Consumer<?>> EMPTY = new ArrayList<>(0);
 
-    public static void clearListeners(){
+    public void clearListeners(){
         eventListeners.clear();
     }
 
-    public static <T> void addListener(Class<T> event, Consumer<T> listener){
+    public <T> void addListener(Class<T> event, Consumer<T> listener){
         eventListeners.compute(event, (aClass, consumers) -> {
             if(consumers == null){
                 consumers = new LinkedList<>();
@@ -29,7 +29,7 @@ public class EventHandler {
     }
 
     @SneakyThrows
-    public static <T> void executeEvent(Object event){
+    public <T> void executeEvent(Object event){
         for (Consumer<?> consumer : eventListeners.getOrDefault(event.getClass(), EMPTY)) {
             Method method = consumer.getClass().getDeclaredMethod("accept", Object.class);
             method.setAccessible(true);

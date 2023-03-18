@@ -1,7 +1,6 @@
 package net.tiffit.realmnetapi.net.packet.in;
 
 import net.tiffit.realmnetapi.api.event.DamageEvent;
-import net.tiffit.realmnetapi.api.event.EventHandler;
 import net.tiffit.realmnetapi.assets.ConditionEffect;
 import net.tiffit.realmnetapi.net.RealmNetworker;
 import net.tiffit.realmnetapi.net.packet.RotMGPacketIn;
@@ -37,7 +36,7 @@ public class DamagePacketIn extends RotMGPacketIn  {
 
     @Override
     public void handle(RealmNetworker net) throws IOException {
-        EventHandler.executeEvent(new DamageEvent(this));
+        net.eventHandler.executeEvent(new DamageEvent(this));
     }
 }
 

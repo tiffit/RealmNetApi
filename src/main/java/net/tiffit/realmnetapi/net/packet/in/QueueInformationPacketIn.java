@@ -1,6 +1,5 @@
 package net.tiffit.realmnetapi.net.packet.in;
 
-import net.tiffit.realmnetapi.api.event.EventHandler;
 import net.tiffit.realmnetapi.api.event.QueueInformationEvent;
 import net.tiffit.realmnetapi.net.RealmNetworker;
 import net.tiffit.realmnetapi.net.packet.RotMGPacketIn;
@@ -20,6 +19,6 @@ public class QueueInformationPacketIn extends RotMGPacketIn {
 
     @Override
     public void handle(RealmNetworker net) throws IOException {
-        EventHandler.executeEvent(new QueueInformationEvent(position, outOf));
+        net.eventHandler.executeEvent(new QueueInformationEvent(position, outOf));
     }
 }

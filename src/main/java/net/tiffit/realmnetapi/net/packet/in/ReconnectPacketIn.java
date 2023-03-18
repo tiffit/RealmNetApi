@@ -1,6 +1,5 @@
 package net.tiffit.realmnetapi.net.packet.in;
 
-import net.tiffit.realmnetapi.api.event.EventHandler;
 import net.tiffit.realmnetapi.api.event.ReconnectEvent;
 import net.tiffit.realmnetapi.net.RealmNetworker;
 import net.tiffit.realmnetapi.net.packet.RotMGPacketIn;
@@ -31,6 +30,6 @@ public class ReconnectPacketIn extends RotMGPacketIn {
     @Override
     public void handle(RealmNetworker net) throws IOException {
         System.out.println("Loading " + name + "= " + host + ":" + gameId);
-        EventHandler.executeEvent(new ReconnectEvent(this));
+        net.eventHandler.executeEvent(new ReconnectEvent(this));
     }
 }

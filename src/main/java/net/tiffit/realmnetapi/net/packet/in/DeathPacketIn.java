@@ -1,7 +1,6 @@
 package net.tiffit.realmnetapi.net.packet.in;
 
 import net.tiffit.realmnetapi.api.event.DeathEvent;
-import net.tiffit.realmnetapi.api.event.EventHandler;
 import net.tiffit.realmnetapi.net.RealmNetworker;
 import net.tiffit.realmnetapi.net.packet.RotMGPacketIn;
 import net.tiffit.realmnetapi.util.DeathFameInfo;
@@ -36,7 +35,7 @@ public class DeathPacketIn extends RotMGPacketIn  {
 
     @Override
     public void handle(RealmNetworker net) throws IOException {
-        EventHandler.executeEvent(new DeathEvent(this));
+        net.eventHandler.executeEvent(new DeathEvent(this));
         net.ackHandler.add(net::disconnect);
     }
 

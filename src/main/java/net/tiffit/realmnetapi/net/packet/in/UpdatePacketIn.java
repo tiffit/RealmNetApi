@@ -1,6 +1,5 @@
 package net.tiffit.realmnetapi.net.packet.in;
 
-import net.tiffit.realmnetapi.api.event.EventHandler;
 import net.tiffit.realmnetapi.api.event.PlayerDataEvent;
 import net.tiffit.realmnetapi.assets.xml.GameObject;
 import net.tiffit.realmnetapi.assets.xml.Ground;
@@ -67,7 +66,7 @@ public class UpdatePacketIn extends RotMGPacketIn {
                 GameObject go = XMLLoader.OBJECTS.get(state.type);
                 if(net.map.getObjectId() == state.objectId){
                     net.map.setSelfState(state);
-                    EventHandler.executeEvent(new PlayerDataEvent(state));
+                    net.eventHandler.executeEvent(new PlayerDataEvent(state, state.getAllStatTypes()));
                 }else {
                     if (go != null) {
                         RObject obj = net.hooks.RObjectFunc.apply(state, net.map);

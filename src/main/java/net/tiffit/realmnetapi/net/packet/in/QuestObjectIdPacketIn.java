@@ -1,5 +1,6 @@
 package net.tiffit.realmnetapi.net.packet.in;
 
+import net.tiffit.realmnetapi.api.event.QuestUpdateEvent;
 import net.tiffit.realmnetapi.net.RealmNetworker;
 import net.tiffit.realmnetapi.net.packet.RotMGPacketIn;
 
@@ -24,6 +25,7 @@ public class QuestObjectIdPacketIn extends RotMGPacketIn {
     @Override
     public void handle(RealmNetworker net) throws IOException {
         net.map.setQuestObjectId(objectId);
+        net.eventHandler.executeEvent(new QuestUpdateEvent(objectId));
     }
 
     @Override

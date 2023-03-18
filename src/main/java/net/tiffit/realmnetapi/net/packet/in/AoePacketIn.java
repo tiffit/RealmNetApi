@@ -1,7 +1,6 @@
 package net.tiffit.realmnetapi.net.packet.in;
 
 import net.tiffit.realmnetapi.api.event.AoeEvent;
-import net.tiffit.realmnetapi.api.event.EventHandler;
 import net.tiffit.realmnetapi.net.RealmNetworker;
 import net.tiffit.realmnetapi.net.packet.RotMGPacketIn;
 import net.tiffit.realmnetapi.net.packet.out.AoeAckPacketOut;
@@ -36,7 +35,7 @@ public class AoePacketIn extends RotMGPacketIn {
     public void handle(RealmNetworker net) throws IOException {
         net.ackHandler.add(() -> {
             net.send(new AoeAckPacketOut(RealmNetworker.getTime(), net.map.getPlayerPos().getPos()));
-            EventHandler.executeEvent(new AoeEvent(this));
+            net.eventHandler.executeEvent(new AoeEvent(this));
         });
     }
 }
