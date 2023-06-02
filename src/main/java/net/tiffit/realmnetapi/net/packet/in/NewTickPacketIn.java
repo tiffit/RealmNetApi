@@ -1,5 +1,6 @@
 package net.tiffit.realmnetapi.net.packet.in;
 
+import net.tiffit.realmnetapi.api.IObjectListener;
 import net.tiffit.realmnetapi.api.event.PlayerDataEvent;
 import net.tiffit.realmnetapi.map.object.GameObjectState;
 import net.tiffit.realmnetapi.map.object.MoveRecordState;
@@ -61,9 +62,14 @@ public class NewTickPacketIn extends RotMGPacketIn {
                     net.eventHandler.executeEvent(new PlayerDataEvent(net.map.getSelfState(), state.getAllStatTypes()));
                 }else {
                     RObject entity = net.map.getEntityList().get(state.objectId);
-                    if (tickTime != 0 && entity != null) {
+                    if (entity != null) {
                         entity.mergeState(state);
-                        entity.onTickPos(state.position.x(), state.position.y(), tickTime, tickId);
+                        if(entity.getListener() instanceof IObjectListener.StatChangeListener scl){
+                            scl.onStatChange(entity.getState(), state.getAllStatTypes());
+                        }
+                        if(tickTime != 0){
+                            entity.onTickPos(state.position.x(), state.position.y(), tickTime, tickId);
+                        }
                     }
                 }
             }

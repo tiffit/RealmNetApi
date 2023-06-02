@@ -8,6 +8,10 @@ public record Vec3f(float x, float y, float z) {
         return x == 0 && y == 0 && z == 0;
     }
 
+    public Vec3f add(float x, float y, float z){
+        return new Vec3f(this.x + x, this.y + y,this.z + z);
+    }
+
     public float distanceSq(Vec3f o){
         float dx = x-o.x;
         float dy = y-o.y;

@@ -178,6 +178,7 @@ public class XMLLoader {
         go.enemy = helper.hasChild("Enemy");
         go.player = helper.hasChild("Player");
         go.drawOnGround = helper.hasChild("DrawOnGround");
+        go.alwaysPositiveHealth = helper.hasChild("AlwaysPositiveHealth");
         go.staticObject = helper.hasChild("Static");
         go.occupySquare = helper.hasChild("OccupySquare");
         go.fullOccupy = helper.hasChild("FullOccupy");
@@ -192,6 +193,7 @@ public class XMLLoader {
         go.mpCost = helper.getChildElementInteger("MpCost", 0);
         go.usable = helper.hasChild("Usable");
         go.cooldown = helper.getChildElementFloat("Cooldown", 0.5f);
+        go.activate = ItemActivate.parse(helper.getChildElementText("Activate", ""));
 
         go.hitSound = helper.getChildElementText("HitSound");
         go.deathSound = helper.getChildElementText("DeathSound");
@@ -217,6 +219,7 @@ public class XMLLoader {
             proj.armorPierce = phelper.hasChild("ArmorPierce");
             proj.boomerang = phelper.hasChild("Boomerang");
             proj.wavy = phelper.hasChild("Wavy");
+            proj.particleTrail = phelper.hasChild("ParticleTrail");
             proj.magnitude = phelper.getChildElementFloat("Magnitude", 3);
             proj.amplitude = phelper.getChildElementFloat("Amplitude", 0);
             proj.frequency = phelper.getChildElementFloat("Frequency", 1);
@@ -235,6 +238,14 @@ public class XMLLoader {
             attack.load(subattackElem);
             attack.index = go.subAttacks.size();
             go.subAttacks.add(attack);
+        }
+
+        NodeList unlockLevels = (NodeList)compile("./UnlockLevel").evaluate(elem.cloneNode(true), XPathConstants.NODESET);
+        for(int i = 0; i < unlockLevels.getLength(); i++){
+            Element unlockLvlElem = (Element)unlockLevels.item(i).cloneNode(true);
+            if(unlockLvlElem.hasAttributes()){
+                go.unlockLevels.put(helper.parseInt(unlockLvlElem.getAttribute("type")), helper.parseInt(unlockLvlElem.getAttribute("level")));
+            }
         }
 
         if(helper.hasChild("Presentation")){

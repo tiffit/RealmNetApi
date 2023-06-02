@@ -19,9 +19,9 @@ public class HelloPacketOut extends RotMGPacketOut {
     private final String clientToken;
     private final String userToken;
 
-    public HelloPacketOut(String accessToken, int gameId, byte[] key, int keyTime) {
-        super((byte)1);
-        this.buildVersion = "3.3.5.2.0";
+    public HelloPacketOut(String accessToken, String clientHash, int gameId, byte[] key, int keyTime) {
+        super((byte)74);
+        this.buildVersion = RealmNetApi.ENV.latestVersion;
         this.gameId = gameId;
         this.accessToken = accessToken;
         this.keyTime = keyTime;
@@ -29,8 +29,8 @@ public class HelloPacketOut extends RotMGPacketOut {
         this.userPlatform = "rotmg";
         this.playPlatform = "rotmg";
         this.platformToken = "";
-        this.clientToken = RealmNetApi.CLIENT_TOKEN;
-        this.userToken = "8bV53M5ysJdVjU4M97fg3g7BnPXhefnc";
+        this.clientToken = clientHash;
+        this.userToken = "2Jzc9JbAT7f82MOXVTJBUqKzwcEPZ3ZO";
     }
 
     @Override

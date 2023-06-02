@@ -1,5 +1,6 @@
 package net.tiffit.realmnetapi.net.packet.in;
 
+import net.tiffit.realmnetapi.api.event.CreateSuccessEvent;
 import net.tiffit.realmnetapi.net.RealmNetworker;
 import net.tiffit.realmnetapi.net.packet.RotMGPacketIn;
 
@@ -21,5 +22,7 @@ public class CreateSuccessPacketIn extends RotMGPacketIn {
     @Override
     public void handle(RealmNetworker net) throws IOException {
         net.map.setObjectId(objectId);
+        net.map.setCharacterId(charId);
+        net.eventHandler.executeEvent(new CreateSuccessEvent(objectId, charId));
     }
 }

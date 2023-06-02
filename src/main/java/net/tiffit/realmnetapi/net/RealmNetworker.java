@@ -54,12 +54,12 @@ public class RealmNetworker {
     private final LinkedBlockingQueue<Tuple<RotMGPacketOut, byte[]>> packets = new LinkedBlockingQueue<>();
 
     @SneakyThrows
-    public RealmNetworker(ConnectionAddress address, Hooks hooks, EventHandler eventHandler){
+    public RealmNetworker(ConnectionAddress address, Hooks hooks, EventHandler eventHandler, File logFolder){
         this.address = address;
         this.hooks = hooks;
         this.eventHandler = eventHandler;
         RotMGPacketIn.init();
-        this.logger = new NetworkLogger(this);
+        this.logger = new NetworkLogger(this, logFolder);
         this.socket = new Socket();
         socket.setTcpNoDelay(true);
     }
@@ -72,7 +72,7 @@ public class RealmNetworker {
             this.connected = true;
             new Thread(this::listen, "Net Listener").start();
             new Thread(this::sendPackets, "Packet Sender").start();
-            HelloPacketOut packet = new HelloPacketOut(token.getToken(), address.gameId(), address.key(), address.keyTime());
+            HelloPacketOut packet = new HelloPacketOut(token.getToken(), token.getClientHash(), address.gameId(), address.key(), address.keyTime());
             while (true) {
                 if (this.socket.isConnected()) {
                     logger.write("Connected to server!");

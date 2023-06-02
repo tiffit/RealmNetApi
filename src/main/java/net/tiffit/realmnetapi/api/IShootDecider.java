@@ -5,7 +5,7 @@ import net.tiffit.realmnetapi.assets.xml.GameObject;
 public interface IShootDecider {
 
     boolean shouldShoot();
-    float getAngleRads(GameObject go, float arcGap);
+    float getAngleRads(GameObject go);
 
     class ShootDecider implements IShootDecider {
 
@@ -15,7 +15,7 @@ public interface IShootDecider {
         }
 
         @Override
-        public float getAngleRads(GameObject go, float arcGap){
+        public float getAngleRads(GameObject go){
             return 0f;
         }
     }

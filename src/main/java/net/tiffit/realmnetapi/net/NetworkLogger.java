@@ -1,5 +1,7 @@
 package net.tiffit.realmnetapi.net;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,22 +14,26 @@ import java.util.concurrent.locks.ReentrantLock;
 public class NetworkLogger {
 
     private boolean saved = false;
-
-    public boolean enabled = true;
+    private final File logFolder;
+    private boolean enabled;
     private RealmNetworker net;
     private HashMap<String, ArrayList<String>>values = new HashMap<>();
     private ReentrantLock lock = new ReentrantLock();
 
-    public NetworkLogger(RealmNetworker net){
+    public NetworkLogger(RealmNetworker net, @Nullable File log){
         this.net = net;
-        File log = new File("./debug/");
-        if(!log.exists()){
-            //noinspection ResultOfMethodCallIgnored
-            log.mkdir();
-        }
-        for (File file : Objects.requireNonNull(log.listFiles())) {
-            //noinspection ResultOfMethodCallIgnored
-            file.delete();
+        enabled = log != null;
+        logFolder = log;
+        //File log = new File("./debug/");
+        if (enabled) {
+            if(!log.exists()){
+                //noinspection ResultOfMethodCallIgnored
+                log.mkdirs();
+            }
+            for (File file : Objects.requireNonNull(log.listFiles())) {
+                //noinspection ResultOfMethodCallIgnored
+                file.delete();
+            }
         }
     }
 
@@ -57,7 +63,7 @@ public class NetworkLogger {
     public void save(){
         lock.lock();
         values.forEach((s, strings) -> {
-            File log = new File("./debug/" + s + ".txt");
+            File log = new File(logFolder, s + ".txt");
             try {
                 if(!log.exists())
                     log.createNewFile();

@@ -28,7 +28,7 @@ public class Updater implements Runnable {
 
     public HashMap<Integer, AttackTracker> attacks = new HashMap<>();
     public int current_item = 0;
-    public int next_bullet_id = 1;
+    private int next_bullet_id = 1;
 
     public Updater(RealmNetworker net){
         this.net = net;
@@ -122,26 +122,35 @@ public class Updater implements Runnable {
                 ItemType type = ItemType.byID(go.slotType);
                 if(type == ItemType.SWORD_TYPE || type == ItemType.DAGGER_TYPE || type == ItemType.BOW_TYPE || type == ItemType.WAND_TYPE || type == ItemType.STAFF_TYPE || type == ItemType.KATANA_TYPE){
                     if(heldStat != current_item){
-                        if(go.subAttacks.isEmpty()){
-                            attacks.put(0, new AttackTracker().noSubAttacks(go));
-                        }else{
-                            for (SubAttack subAttack : go.subAttacks) {
-                                AttackTracker tracker = new AttackTracker();
-                                tracker.attack = subAttack;
-                                attacks.put(subAttack.index, tracker);
-                            }
-                        }
+                        attacks = createSubAttacks(go);
                         current_item = heldStat;
                     }
-                    float arcGap = (float) Math.toRadians(go.arcGap);
-                    float angle = decider.getAngleRads(go, arcGap);
-                    attacks.values().forEach(attackTracker -> attackTracker.attack(angle, net, go, type, playerState));
+                    runSubAttacks(attacks, decider, go, type, playerState, false);
                 }
             }
         }
     }
 
-    private double attackFrequency(GameObjectState state) {
+    public HashMap<Integer, AttackTracker> createSubAttacks(GameObject go){
+        HashMap<Integer, AttackTracker> attacks = new HashMap<>();
+        if(go.subAttacks.isEmpty()){
+            attacks.put(0, new AttackTracker().noSubAttacks(go));
+        }else{
+            for (SubAttack subAttack : go.subAttacks) {
+                AttackTracker tracker = new AttackTracker();
+                tracker.attack = subAttack;
+                attacks.put(subAttack.index, tracker);
+            }
+        }
+        return attacks;
+    }
+
+    public void runSubAttacks(HashMap<Integer, AttackTracker> attacks, IShootDecider decider, GameObject go, ItemType type, GameObjectState playerState, boolean force){
+        float angle = decider.getAngleRads(go);
+        attacks.values().forEach(attackTracker -> attackTracker.attack(angle, net, go, type, playerState, force));
+    }
+
+    private static double attackFrequency(GameObjectState state) {
         if(state.hasEffect(ConditionEffect.DAZED)){
             return RConstants.MIN_ATTACK_FREQ;
         }
@@ -152,13 +161,13 @@ public class Updater implements Runnable {
         return freq;
     }
 
-    private int getBulletId() {
+    public int getBulletId() {
         int bullet = next_bullet_id;
         next_bullet_id = (next_bullet_id + 1) % 256;
         return bullet;
     }
 
-    private double attackMultiplier(GameObjectState state) {
+    private static double attackMultiplier(GameObjectState state) {
         if(state.hasEffect(ConditionEffect.WEAK)){
             return RConstants.MIN_ATTACK_MULT;
         }
@@ -169,7 +178,7 @@ public class Updater implements Runnable {
         return mult;
     }
 
-    private class AttackTracker {
+    public class AttackTracker {
         public int attack_period = 0;
         public long attack_start = 0;
         public int burstCount = 0;
@@ -183,13 +192,14 @@ public class Updater implements Runnable {
             attack.rateOfFire = go.rateOfFire;
             attack.defaultAngleDeg = 0;
             attack.posOffset = Vec2f.ZERO;
+            attack.arcGap = -1;
             return this;
         }
 
-        public void attack(float angle, RealmNetworker net, GameObject go, ItemType type, GameObjectState playerState){
+        public void attack(float angle, RealmNetworker net, GameObject go, ItemType type, GameObjectState playerState, boolean force){
             attack_period = (int)Math.ceil((1 / attackFrequency(playerState) * (1 / attack.rateOfFire)));
             int ms = RealmNetworker.getTime();
-            if (ms <= attack_start + attack_period) {
+            if (!force && ms <= attack_start + attack_period) {
                 return;
             }
             if(attack.burstCount > 0){
@@ -207,15 +217,15 @@ public class Updater implements Runnable {
             angle += (float)Math.toRadians(attack.defaultAngleDeg);
             attack_start = ms;
             RMap map = net.map;
-            float arcGap = (float) Math.toRadians(go.arcGap);
+            float arcGap = (float) Math.toRadians(attack.arcGap == -1 ? go.arcGap : attack.arcGap);
             Vec2f shootPos = map.getPlayerPos().getPos();
             if(!attack.posOffset.isZero()){
                 double offsetAngle = Math.atan2(attack.posOffset.x(), attack.posOffset.y()) + angle;
                 float magnitude = (float) Math.sqrt(attack.posOffset.distanceSqr(Vec2f.ZERO));
                 shootPos = shootPos.add(new Vec2f((float) Math.cos(offsetAngle) * magnitude, (float) Math.sin(offsetAngle) * magnitude));
             }
+            angle -= ((attack.numProjectiles-1)*arcGap)/2f;
             shootPos = shootPos.add(Vec2f.rotate(0.3f, angle));
-
             for (int i = 0; i < attack.numProjectiles; i++) {
                 short bulletId = (short) getBulletId();
                 ProjectileState state = new ProjectileState();
@@ -225,16 +235,15 @@ public class Updater implements Runnable {
                 state.angle = angle + arcGap * i;
                 state.startX = shootPos.x();
                 state.startY = shootPos.y();
-                state.proj = go.projectiles.get(0);
+                state.proj = go.projectiles.get(attack.projectileId);
                 state.numShots = (byte) attack.numProjectiles;
                 state.angleInc = arcGap;
                 state.damage = (short) (attackMultiplier(playerState) * map.getRandom().nextIntRange(state.proj.minDamage, state.proj.maxDamage));
-                String objId = state.proj.objectId;
-                state.obj = XMLLoader.ID_TO_OBJECT.getOrDefault(objId, null);
+                state.obj = XMLLoader.ID_TO_OBJECT.getOrDefault(state.proj.objectId, null);
 
                 RProjectile proj = RProjectile.create(net, state);
                 proj.startTime = ms;
-                PlayerShootPacketOut packet = new PlayerShootPacketOut(ms, bulletId, (short)go.type, (byte)attack.index, shootPos, angle, false);
+                PlayerShootPacketOut packet = new PlayerShootPacketOut(ms, bulletId, (short)go.type, (byte)attack.index, shootPos, (float)state.angle, false);
                 net.send(packet);
             }
             net.eventHandler.executeEvent(new PlayerShootEvent(angle, go, type));

@@ -1,8 +1,11 @@
 package net.tiffit.realmnetapi.net.packet.in;
 
+import lombok.RequiredArgsConstructor;
 import net.tiffit.realmnetapi.map.RMap;
 import net.tiffit.realmnetapi.net.RealmNetworker;
 import net.tiffit.realmnetapi.net.packet.RotMGPacketIn;
+import net.tiffit.realmnetapi.net.packet.RotMGPacketOut;
+import net.tiffit.realmnetapi.net.packet.out.CreatePacketOut;
 import net.tiffit.realmnetapi.net.packet.out.LoadPacketOut;
 import net.tiffit.realmnetapi.util.RotMGRandom;
 
@@ -50,8 +53,31 @@ public class MapInfoPacketIn extends RotMGPacketIn {
 
     @Override
     public void handle(RealmNetworker net) throws IOException {
-        net.send(new LoadPacketOut(net.hooks.CharacterId));
+        net.send(net.hooks.CharacterFactory.get());
         net.map = new RMap(net, width, height, name, displayName, realmName, allowPlayerTeleport);
         net.map.setRandom(new RotMGRandom(seed));
+    }
+
+    public static interface ICharacterPacketFactory {
+        RotMGPacketOut get();
+    }
+
+    @RequiredArgsConstructor
+    public static class LoadPacketFactory implements ICharacterPacketFactory {
+        private final int CharacterId;
+        @Override
+        public RotMGPacketOut get() {
+            return new LoadPacketOut(CharacterId);
+        }
+    }
+
+    @RequiredArgsConstructor
+    public static class CreatePacketFactory implements ICharacterPacketFactory {
+        private final short classType;
+        private final boolean isSeasonal;
+        @Override
+        public RotMGPacketOut get() {
+            return new CreatePacketOut(classType, (short) 0, false, isSeasonal);
+        }
     }
 }

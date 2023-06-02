@@ -4,6 +4,7 @@ import net.tiffit.realmnetapi.map.RMap;
 import net.tiffit.realmnetapi.map.object.GameObjectState;
 import net.tiffit.realmnetapi.map.object.RObject;
 import net.tiffit.realmnetapi.map.projectile.RProjectile;
+import net.tiffit.realmnetapi.net.packet.in.MapInfoPacketIn;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -16,5 +17,5 @@ public class Hooks {
     public Function<RObject, IObjectListener<RObject>> ObjectListener = IObjectListener.EmptyObjectListener::new;
     public Function<RProjectile, IObjectListener<RProjectile>> ProjectileListener = IObjectListener.EmptyObjectListener::new;
     public IShootDecider ShootDecider = new IShootDecider.ShootDecider();
-    public int CharacterId = 0;
+    public MapInfoPacketIn.ICharacterPacketFactory CharacterFactory = null;
 }

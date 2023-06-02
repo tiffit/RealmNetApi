@@ -30,6 +30,7 @@ public class GameObject implements Serializable {
     public boolean drawOnGround;
     public boolean noTexture;
     public String defaultSkin;
+    public boolean alwaysPositiveHealth;
 
     public boolean staticObject;
     public boolean occupySquare;
@@ -49,6 +50,8 @@ public class GameObject implements Serializable {
     public List<SubAttack> subAttacks = new ArrayList<>();
     public List<Projectile> projectiles = new ArrayList<>();
 
+    public Map<Integer, Integer> unlockLevels = new HashMap<>();
+
     public boolean item;
     public int tier;
     public int quantity;
@@ -63,6 +66,7 @@ public class GameObject implements Serializable {
     public int mpCost;
     public boolean usable;
     public float cooldown;
+    public ItemActivate activate;
 
     public String hitSound;
     public String deathSound;

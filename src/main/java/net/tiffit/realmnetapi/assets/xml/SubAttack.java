@@ -18,6 +18,7 @@ public class SubAttack implements Serializable {
     public int burstCount = 0;
     public float burstDelay = 0;
     public float burstMinDelay = 0;
+    public float arcGap = -1;
 
     public void load(Element element){
         projectileId = element.hasAttribute("projectileId") ? Integer.parseInt(element.getAttribute("projectileId")) : 0;
@@ -36,6 +37,7 @@ public class SubAttack implements Serializable {
                     case "BurstCount" -> burstCount = Integer.parseInt(elem.getTextContent());
                     case "BurstDelay" -> burstDelay = Float.parseFloat(elem.getTextContent());
                     case "BurstMinDelay" -> burstMinDelay = Float.parseFloat(elem.getTextContent());
+                    case "ArcGap" -> arcGap = Float.parseFloat(elem.getTextContent());
                 }
             }
         }

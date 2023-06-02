@@ -15,7 +15,7 @@ public class UseItemPacketOut extends RotMGPacketOut {
     private int type;
 
     public UseItemPacketOut(int time, SlotObjectData data, Vec2f pos, int type) {
-        super((byte)11);
+        super((byte)13);
         this.time = time;
         this.data = data;
         this.pos = pos;

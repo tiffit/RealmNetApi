@@ -35,6 +35,8 @@ public class RMap {
     @Setter
     private int objectId;
     @Setter
+    private int characterId;
+    @Setter
     private GameObjectState selfState;
     private final IPlayerPosTracker playerPos;
 

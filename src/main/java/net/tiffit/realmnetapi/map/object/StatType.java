@@ -1,5 +1,7 @@
 package net.tiffit.realmnetapi.map.object;
 
+import java.util.HashMap;
+
 public enum StatType {
         MAX_HP(0),
         HP(1),
@@ -127,17 +129,15 @@ public enum StatType {
         UNKNOWN123(123),
         UNKNOWN124(124),
         STYLE_ID_HASH(125),
-        UNKNOWN126(126),
-        UNKNOWN127(127),
-        UNKNOWN128(128),
-        UNKNOWN129(129);
+        UNKNOWN126(126);
 
         public final byte id;
         public final boolean stringType;
 
+        private final static HashMap<Integer, StatType> map = new HashMap<>();
+
         StatType(int id){
-                this.id = (byte)id;
-                stringType = false;
+                this(id, false);
         }
 
         StatType(int id, boolean stringType){
@@ -145,10 +145,17 @@ public enum StatType {
                 this.stringType = stringType;
         }
 
-        public static StatType byID(int id){
+        static {
                 for(StatType type : StatType.values()){
-                        if(type.id == (byte)id)return type;
+                        map.put((int)type.id, type);
                 }
-                return null;
+        }
+
+        public static StatType byID(int id){
+                return map.getOrDefault(id, null);
+//                for(StatType type : StatType.values()){
+//                        if(type.id == (byte)id)return type;
+//                }
+//                return null;
         }
 }

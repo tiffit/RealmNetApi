@@ -44,19 +44,22 @@ public class AllyShootPacketIn extends RotMGPacketIn {
             if (shooter != null) {
                 state.startX = shooter.getCorrectedX();
                 state.startY = shooter.getCorrectedY();
-                List<Projectile> projectiles = XMLLoader.OBJECTS.get((int) containerType).projectiles;
-                Projectile proj = projectiles.get(projectileId % projectiles.size());
-                if (proj != null) {
-                    state.proj = proj;
-                    String objId = proj.objectId;
-                    state.obj = null;
-                    for (GameObject obj : XMLLoader.OBJECTS.values()) {
-                        if (obj.id.equals(objId)) {
-                            state.obj = obj;
-                            break;
+                GameObject container = XMLLoader.OBJECTS.get((int) containerType);
+                if(container != null){
+                    List<Projectile> projectiles = XMLLoader.OBJECTS.get((int) containerType).projectiles;
+                    Projectile proj = projectiles.get(projectileId % projectiles.size());
+                    if (proj != null) {
+                        state.proj = proj;
+                        String objId = proj.objectId;
+                        state.obj = null;
+                        for (GameObject obj : XMLLoader.OBJECTS.values()) {
+                            if (obj.id.equals(objId)) {
+                                state.obj = obj;
+                                break;
+                            }
                         }
+                        RProjectile.create(net, state);
                     }
-                    RProjectile.create(net, state);
                 }
             }
         }

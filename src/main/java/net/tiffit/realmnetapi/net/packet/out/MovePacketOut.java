@@ -15,7 +15,7 @@ public class MovePacketOut extends RotMGPacketOut {
     private final List<MoveRecordState> records;
 
     public MovePacketOut(int tickId, int time, List<MoveRecordState> records) {
-        super((byte)42);
+        super((byte)62);
         this.tickId = tickId;
         this.time = time;
         this.records = records;
@@ -36,7 +36,8 @@ public class MovePacketOut extends RotMGPacketOut {
     public String getExtraInfo() {
         String recordsStr =
                 "[" +
-                records.stream().map(moveRecordState -> "" + moveRecordState.time).collect(Collectors.joining(",")) +
+                records.stream().map(moveRecordState -> "" + moveRecordState.time + " (" + moveRecordState.x + ", " + moveRecordState.y + ")")
+                        .collect(Collectors.joining(",")) +
                 "]";
         return "{" + tickId + ", records="+ recordsStr +"}";
     }

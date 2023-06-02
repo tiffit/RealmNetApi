@@ -11,7 +11,7 @@ public class TeleportPacketOut extends RotMGPacketOut {
     private final String name;
 
     public TeleportPacketOut(int objectId, String name) {
-        super((byte)74);
+        super((byte)1);
         this.objectId = objectId;
         this.name = name;
     }

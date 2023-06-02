@@ -10,7 +10,7 @@ public class PlayerTextPacketOut extends RotMGPacketOut {
     public String text;
 
     public PlayerTextPacketOut(String text) {
-        super((byte)10);
+        super((byte)9);
         this.text = text;
     }
 

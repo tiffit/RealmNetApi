@@ -1,7 +1,9 @@
 package net.tiffit.realmnetapi.api;
 
 import net.tiffit.realmnetapi.assets.ConditionEffect;
+import net.tiffit.realmnetapi.assets.ItemType;
 import net.tiffit.realmnetapi.assets.xml.GameObject;
+import net.tiffit.realmnetapi.assets.xml.ItemActivate;
 import net.tiffit.realmnetapi.assets.xml.XMLLoader;
 import net.tiffit.realmnetapi.map.object.GameObjectState;
 import net.tiffit.realmnetapi.map.object.RObject;
@@ -11,7 +13,10 @@ import net.tiffit.realmnetapi.net.SlotObjectData;
 import net.tiffit.realmnetapi.net.packet.out.PlayerTextPacketOut;
 import net.tiffit.realmnetapi.net.packet.out.TeleportPacketOut;
 import net.tiffit.realmnetapi.net.packet.out.UseItemPacketOut;
+import net.tiffit.realmnetapi.util.Updater;
 import net.tiffit.realmnetapi.util.math.Vec2f;
+
+import java.util.HashMap;
 
 public class PlayerController {
     private RealmNetworker net;
@@ -57,6 +62,14 @@ public class PlayerController {
         lastAbilityUse = time;
         SlotObjectData data = new SlotObjectData(net.map.getObjectId(), 1, equipItem);
         net.send(new UseItemPacketOut(time, data, pos, 1));
+
+        if(item.activate == ItemActivate.Shoot){
+            Updater updater = net.updater;
+            IShootDecider shootDecider = net.hooks.ShootDecider;
+            HashMap<Integer, Updater.AttackTracker> subAttacks = updater.createSubAttacks(item);
+            updater.runSubAttacks(subAttacks, shootDecider, item, ItemType.byID(item.slotType), net.map.getSelfState(), true);
+        }
+
         return AbilityUseResult.SUCCESS;
     }
 

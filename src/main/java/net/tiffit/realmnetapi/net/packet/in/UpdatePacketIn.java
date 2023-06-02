@@ -1,5 +1,6 @@
 package net.tiffit.realmnetapi.net.packet.in;
 
+import net.tiffit.realmnetapi.api.IObjectListener;
 import net.tiffit.realmnetapi.api.event.PlayerDataEvent;
 import net.tiffit.realmnetapi.assets.xml.GameObject;
 import net.tiffit.realmnetapi.assets.xml.Ground;
@@ -71,6 +72,9 @@ public class UpdatePacketIn extends RotMGPacketIn {
                     if (go != null) {
                         RObject obj = net.hooks.RObjectFunc.apply(state, net.map);
                         net.map.getEntityList().set(state.objectId, obj);
+                        if(obj.getListener() instanceof IObjectListener.StatChangeListener scl){
+                            scl.onStatChange(state, state.getAllStatTypes());
+                        }
                     }else{
                         System.out.println("Unknown object type " + state.type);
                     }

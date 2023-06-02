@@ -36,6 +36,7 @@ public class GameObjectState {
         this.position = state.position;
         STATS_INT.putAll(state.STATS_INT);
         STATS_STR.putAll(state.STATS_STR);
+        STATS.addAll(state.STATS);
         return this;
     }
 

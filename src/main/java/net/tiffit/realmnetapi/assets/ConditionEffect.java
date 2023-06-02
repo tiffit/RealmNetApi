@@ -24,7 +24,7 @@ public enum ConditionEffect implements Serializable {
     HEALING(18, "Healing", true),
     DAMAGING(19, "Damaging", true),
     BERSERK(20, "Berserk", true),
-    PAUSED(21, "Paused", true),
+    IN_COMBAT(21, "In Combat", true),
     STASIS(22, "Stasis", false),
     STASIS_IMMUNE(23, "Stasis Immune", false),
     INVINCIBLE(24, "Invincible", true),

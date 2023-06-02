@@ -1,5 +1,10 @@
 package net.tiffit.realmnetapi.api;
 
+import net.tiffit.realmnetapi.map.object.GameObjectState;
+import net.tiffit.realmnetapi.map.object.StatType;
+
+import java.util.Set;
+
 public interface IObjectListener<T> {
 
     void updateLoop();
@@ -21,5 +26,11 @@ public interface IObjectListener<T> {
         public void objectKill() {
 
         }
+    }
+
+    interface StatChangeListener {
+
+        void onStatChange(GameObjectState state, Set<StatType> changedStats);
+
     }
 }

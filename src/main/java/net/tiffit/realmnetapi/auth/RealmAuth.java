@@ -1,9 +1,9 @@
 package net.tiffit.realmnetapi.auth;
 
 import lombok.SneakyThrows;
-import net.tiffit.realmnetapi.RealmNetApi;
 import net.tiffit.realmnetapi.auth.data.PlayerChar;
 import net.tiffit.realmnetapi.auth.data.ServerInfo;
+import net.tiffit.realmnetapi.util.HashUtils;
 import okhttp3.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -12,10 +12,7 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class RealmAuth {
 
@@ -35,25 +32,26 @@ public class RealmAuth {
 
     @SneakyThrows
     public static AccessToken authenticate(RotmgEnv env, String email, String password){
+        String hash = HashUtils.hash(email);
         RequestBody requestBody = new FormBody.Builder()
                 .add("guid", email)
                 .add("password", password)
                 .add("game_net", GAME_NET)
                 .add("play_platform", GAME_PLATFORM)
-                .add("clientToken", RealmNetApi.CLIENT_TOKEN)
+                .add("clientToken", hash)
                 .build();
         Request request = new Request.Builder().url(env.baseUrl + "account/verify").post(requestBody).header("User-Agent", "UnityPlayer/2021.3.5f1 (UnityWebRequest/1.0, libcurl/7.80.0-DEV)").build();
         ResponseBody response = client.newCall(request).execute().body();
         assert response != null;
         Document doc = builder.parse(response.byteStream());
-        return createAccessToken(email, doc);
+        return createAccessToken(email, hash, doc);
     }
 
     @SneakyThrows
     public static AccessToken authenticate(RotmgEnv env, AccessToken token){
         RequestBody requestBody = new FormBody.Builder()
                 .add("guid", token.getEmail())
-                .add("clientToken", RealmNetApi.CLIENT_TOKEN)
+                .add("clientToken", token.getClientHash())
                 .add("accessToken", token.getToken())
                 .add("game_net", GAME_NET)
                 .add("play_platform", GAME_PLATFORM)
@@ -62,10 +60,10 @@ public class RealmAuth {
         ResponseBody response = client.newCall(request).execute().body();
         assert response != null;
         Document doc = builder.parse(response.byteStream());
-        return createAccessToken(token.getEmail(), doc);
+        return createAccessToken(token.getEmail(), token.getClientHash(), doc);
     }
 
-    private static AccessToken createAccessToken(String email, Document doc){
+    private static AccessToken createAccessToken(String email, String clientHash, Document doc){
         doc.normalizeDocument();
         Element docElem = doc.getDocumentElement();
         String accessToken = docElem.getElementsByTagName("AccessToken").item(0).getTextContent();
@@ -73,13 +71,13 @@ public class RealmAuth {
                 Long.parseLong(docElem.getElementsByTagName("AccessTokenExpiration").item(0).getTextContent());
         long accountId = Long.parseLong(docElem.getElementsByTagName("AccountId").item(0).getTextContent());
         String ign = docElem.getElementsByTagName("Name").item(0).getTextContent();
-        return new AccessToken(accessToken, email, accessTokenExpire, accountId, ign);
+        return new AccessToken(accessToken, email, accessTokenExpire, accountId, ign, clientHash);
     }
 
     @SneakyThrows
     public static boolean verifyAccessTokenClient(RotmgEnv env, AccessToken token){
         RequestBody requestBody = new FormBody.Builder()
-                .add("clientToken", RealmNetApi.CLIENT_TOKEN)
+                .add("clientToken", token.getClientHash())
                 .add("accessToken", token.getToken())
                 .add("game_net", GAME_NET)
                 .add("play_platform", GAME_PLATFORM)
@@ -109,27 +107,39 @@ public class RealmAuth {
         NodeList charsNodes = doc.getDocumentElement().getChildNodes();
 
         List<PlayerChar> chars = new LinkedList<>();
+        HashMap<Integer, Integer> maxClassLevel = new HashMap<>();
         try {
             for (int i = 0; i < charsNodes.getLength(); i++) {
                 Element charElem = (Element) charsNodes.item(i);
-                if (!charElem.getTagName().equals("Char")) continue;
-                NodeList charNodes = charElem.getChildNodes();
-                int id = Integer.parseInt(charElem.getAttribute("id"));
-                int objectType = 0, level = 0;
-                int[] equipment = null;
-                for (int j = 0; j < charNodes.getLength(); j++) {
-                    Element elem = (Element) charNodes.item(j);
-                    switch (elem.getNodeName()) {
-                        case "ObjectType" -> objectType = Integer.parseInt(elem.getTextContent());
-                        case "Level" -> level = Integer.parseInt(elem.getTextContent());
-                        case "Equipment" -> equipment = Arrays.stream(elem.getTextContent().split(",")).mapToInt(Integer::parseInt).toArray();
+                if (charElem.getTagName().equals("Char")){
+                    NodeList charNodes = charElem.getChildNodes();
+                    int id = Integer.parseInt(charElem.getAttribute("id"));
+                    int objectType = 0, level = 0;
+                    int[] equipment = null;
+                    for (int j = 0; j < charNodes.getLength(); j++) {
+                        Element elem = (Element) charNodes.item(j);
+                        switch (elem.getNodeName()) {
+                            case "ObjectType" -> objectType = Integer.parseInt(elem.getTextContent());
+                            case "Level" -> level = Integer.parseInt(elem.getTextContent());
+                            case "Equipment" -> equipment = Arrays.stream(elem.getTextContent().split(",")).mapToInt(Integer::parseInt).toArray();
+                        }
+                    }
+                    chars.add(new PlayerChar(id, objectType, level, equipment));
+                }else if(charElem.getTagName().equals("MaxClassLevelList")){
+                    NodeList maxClassLevels = charElem.getChildNodes();
+                    for (int j = 0; j < maxClassLevels.getLength(); j++) {
+                        Element elem = (Element) maxClassLevels.item(j);
+                        int id = Integer.parseInt(elem.getAttribute("classType"));
+                        int level = Integer.parseInt(elem.getAttribute("maxLevel"));
+                        maxClassLevel.put(id, level);
                     }
                 }
-                chars.add(new PlayerChar(id, objectType, level, equipment));
             }
         }catch (Exception ex){
             ex.printStackTrace();
+            return null;
         }
+        token.setMaxClassLevel(maxClassLevel);
         return chars;
     }
 
@@ -144,7 +154,7 @@ public class RealmAuth {
         Request request = new Request.Builder().url(env.baseUrl + "app/init?platform=standalonewindows64&key=9KnJFxtTvLu2frXv").post(requestBody).header("User-Agent", "UnityPlayer/2021.3.5f1 (UnityWebRequest/1.0, libcurl/7.80.0-DEV)").build();
         ResponseBody response = client.newCall(request).execute().body();
         assert response != null;
-        System.out.println(response.string());
+        response.close();
         return;
     }
 

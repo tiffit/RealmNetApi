@@ -12,7 +12,7 @@ public class InvDropPacketOut extends RotMGPacketOut {
     private boolean unknown;
 
     public InvDropPacketOut(SlotObjectData data) {
-        super((byte)55);
+        super((byte)19);
         this.data = data;
         this.unknown = false;
     }

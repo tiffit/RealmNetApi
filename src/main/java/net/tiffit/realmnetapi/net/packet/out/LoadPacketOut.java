@@ -10,7 +10,7 @@ public class LoadPacketOut extends RotMGPacketOut {
     private final int characterId;
 
     public LoadPacketOut(int characterId) {
-        super((byte)57);
+        super((byte)61);
         this.characterId = characterId;
     }
     @Override

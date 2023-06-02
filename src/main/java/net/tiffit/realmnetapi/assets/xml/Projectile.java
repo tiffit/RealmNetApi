@@ -17,7 +17,7 @@ public class Projectile implements Serializable {
     public HashMap<ConditionEffect, Float> effects = new HashMap<>();
 
     public boolean parametric, faceDir, passesCover, multiHit,
-            armorPierce, boomerang, wavy;
+            armorPierce, boomerang, wavy, particleTrail;
 
     public float magnitude = 3, amplitude = 0, frequency = 1;
 

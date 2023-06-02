@@ -16,7 +16,6 @@ public class RotMGEntityList {
 
     public void set(int id, RObject entity){
         lock.lock();
-        //System.out.println("Added: " + id);
         loaded_objects.put(id, entity);
         lock.unlock();
     }
@@ -73,7 +72,6 @@ public class RotMGEntityList {
 
     public RObject remove(int id){
         lock.lock();
-        //System.out.println("Removed: " + id);
         RObject entity = loaded_objects.remove(id);
         removed.add(id);
         lock.unlock();
