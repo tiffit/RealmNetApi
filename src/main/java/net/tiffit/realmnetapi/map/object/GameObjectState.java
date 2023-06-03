@@ -125,7 +125,7 @@ public class GameObjectState {
     }
 
     public ArrayList<ConditionEffect> getAllEffects(){
-        ArrayList<ConditionEffect> list = new ArrayList();
+        ArrayList<ConditionEffect> list = new ArrayList<>();
         for(ConditionEffect effect : ConditionEffect.values()){
             if(hasEffect(effect))list.add(effect);
         }

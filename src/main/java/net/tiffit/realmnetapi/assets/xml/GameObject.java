@@ -37,6 +37,8 @@ public class GameObject implements Serializable {
     public boolean fullOccupy;
     public boolean enemyOccupySquare;
     public boolean blocksSight;
+    public boolean protectFromGroundDamage;
+    public boolean protectFromSink;
     public boolean invincible;
     public HealthBarBoss healthBar = HealthBarBoss.NONE;
 

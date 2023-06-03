@@ -184,6 +184,8 @@ public class XMLLoader {
         go.fullOccupy = helper.hasChild("FullOccupy");
         go.enemyOccupySquare = helper.hasChild("EnemyOccupySquare");
         go.blocksSight = helper.hasChild("BlocksSight");
+        go.protectFromGroundDamage = helper.hasChild("ProtectFromGroundDamage");
+        go.protectFromSink = helper.hasChild("ProtectFromSink");
         go.invincible = helper.hasChild("Invincible");
         go.intergamePortal = helper.hasChild("IntergamePortal");
         go.item = helper.hasChild("Item");
@@ -311,6 +313,10 @@ public class XMLLoader {
             ground.innerCorner = hasChild(elem, "InnerCorner/Texture") ? loadTexture(getChild(elem, "InnerCorner/Texture")) : null;
             ground.corner = hasChild(elem, "Corner/Texture") ? loadTexture(getChild(elem, "Corner/Texture")) : null;
         }
+
+        ground.minDamage = hasChild(elem, "MinDamage") ? Integer.parseInt(getChildElementText(elem, "MinDamage")) : 0;
+        ground.maxDamage = hasChild(elem, "MaxDamage") ? Integer.parseInt(getChildElementText(elem, "MaxDamage")) : 0;
+
         GROUNDS.put(ground.type, ground);
     }
 

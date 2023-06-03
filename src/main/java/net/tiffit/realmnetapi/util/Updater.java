@@ -66,6 +66,9 @@ public class Updater implements Runnable {
                 net.records.addRecord(RealmNetworker.getTime(), pos.x(), pos.y());
                 net.records.lock.unlock();
 
+                //Ground Damage
+                net.map.tickTileDamage(RealmNetworker.getTime());
+
                 net.lastUpdate = RealmNetworker.getTime();
 
                 net.ackHandler.process();
