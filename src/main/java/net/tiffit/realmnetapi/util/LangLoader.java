@@ -29,8 +29,8 @@ public class LangLoader {
 
     public static String format(String str){
         try {
+            str = str.replaceFirst(",(?=\\s*?[}\\]])", "");
             try(JsonReader reader = gson.newJsonReader(new StringReader(str))){
-                str = str.replaceFirst(",(?=\\s*?[}\\]])", "");
                 JsonObject obj = gson.fromJson(reader, JsonObject.class);
                 String key;
                 if(obj.has("k"))key = obj.get("k").getAsString();
@@ -40,13 +40,14 @@ public class LangLoader {
                 if(obj.has("k") && obj.has("t")) {
                     for (Map.Entry<String, JsonElement> entry : obj.getAsJsonObject("t").entrySet()) {
                         if (localized.toLowerCase().contains("{" + entry.getKey().toLowerCase() + "}")) {
-                            localized = localized.replaceFirst("(?i)\\{"+entry.getKey()+"}", entry.getValue().getAsString());
+                            String value = entry.getValue().getAsString();
+                            localized = localized.replaceFirst("(?i)\\{"+entry.getKey()+"}", langMap.getOrDefault(value, value));
                         }
                     }
                 }
                 return localized;
             }
-        }catch(JsonSyntaxException ex){
+        }catch(JsonSyntaxException ignored){
 
         }catch(JsonIOException | IOException ex){
             System.err.println("Error formatting string: " + str);
