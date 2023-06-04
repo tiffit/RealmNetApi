@@ -1,6 +1,7 @@
 package net.tiffit.realmnetapi.assets.xml;
 
 import lombok.SneakyThrows;
+import net.tiffit.realmnetapi.map.object.StatType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -242,12 +243,15 @@ public class XMLLoader {
             go.subAttacks.add(attack);
         }
 
-        NodeList unlockLevels = (NodeList)compile("./UnlockLevel").evaluate(elem.cloneNode(true), XPathConstants.NODESET);
-        for(int i = 0; i < unlockLevels.getLength(); i++){
-            Element unlockLvlElem = (Element)unlockLevels.item(i).cloneNode(true);
-            if(unlockLvlElem.hasAttributes()){
-                go.unlockLevels.put(helper.parseInt(unlockLvlElem.getAttribute("type")), helper.parseInt(unlockLvlElem.getAttribute("level")));
-            }
+        if("Player".equals(go.goClass)){
+            go.maxStats.put(StatType.MAX_HP, helper.getChildAttributeInteger("MaxHitPoints", "max"));
+            go.maxStats.put(StatType.MAX_MP, helper.getChildAttributeInteger("MaxMagicPoints", "max"));
+            go.maxStats.put(StatType.ATTACK, helper.getChildAttributeInteger("Attack", "max"));
+            go.maxStats.put(StatType.DEFENSE, helper.getChildAttributeInteger("Defense", "max"));
+            go.maxStats.put(StatType.SPEED, helper.getChildAttributeInteger("Speed", "max"));
+            go.maxStats.put(StatType.DEXTERITY, helper.getChildAttributeInteger("Dexterity", "max"));
+            go.maxStats.put(StatType.VITALITY, helper.getChildAttributeInteger("HpRegen", "max"));
+            go.maxStats.put(StatType.WISDOM, helper.getChildAttributeInteger("MpRegen", "max"));
         }
 
         if(helper.hasChild("Presentation")){

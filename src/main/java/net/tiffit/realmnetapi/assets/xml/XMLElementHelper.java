@@ -39,6 +39,14 @@ public class XMLElementHelper {
         return (NodeList)compile("./" + child).evaluate(elem, XPathConstants.NODESET);
     }
 
+    public String getChildAttribute(String child, String name) throws XPathExpressionException {
+        return getChild(child).getAttribute(name);
+    }
+
+    public int getChildAttributeInteger(String child, String name) throws XPathExpressionException {
+        return Integer.parseInt(getChildAttribute(child, name));
+    }
+
     public boolean hasChild(String child) throws XPathExpressionException {
         return getChild(child) != null;
     }

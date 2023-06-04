@@ -1,5 +1,7 @@
 package net.tiffit.realmnetapi.assets.xml;
 
+import net.tiffit.realmnetapi.map.object.StatType;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,6 +55,8 @@ public class GameObject implements Serializable {
     public List<Projectile> projectiles = new ArrayList<>();
 
     public Map<Integer, Integer> unlockLevels = new HashMap<>();
+
+    public HashMap<StatType, Integer> maxStats = new HashMap<>();
 
     public boolean item;
     public int tier;
