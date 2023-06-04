@@ -16,7 +16,7 @@ public class InvSwapPacketOut extends RotMGPacketOut {
     private SlotObjectData data2;
 
     public InvSwapPacketOut(int time, Vec2f pos, SlotObjectData data1, SlotObjectData data2) {
-        super((byte)95);
+        super((byte)55);
         this.time = time;
         this.pos = pos;
         this.data1 = data1;
