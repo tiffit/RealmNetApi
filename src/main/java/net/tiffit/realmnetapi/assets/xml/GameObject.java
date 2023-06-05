@@ -31,6 +31,7 @@ public class GameObject implements Serializable {
     public float angleCorrection;
     public boolean drawOnGround;
     public boolean noTexture;
+    public boolean noMinimap;
     public String defaultSkin;
     public boolean alwaysPositiveHealth;
 

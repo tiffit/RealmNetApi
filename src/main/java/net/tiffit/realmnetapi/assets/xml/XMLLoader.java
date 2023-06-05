@@ -176,6 +176,7 @@ public class XMLLoader {
         go.arcGap = helper.getChildElementFloat("ArcGap");
         go.defaultSkin = helper.getChildElementText("DefaultSkin");
         go.noTexture = helper.hasChild("NoTexture");
+        go.noMinimap = helper.hasChild("NoMiniMap");
         go.enemy = helper.hasChild("Enemy");
         go.player = helper.hasChild("Player");
         go.drawOnGround = helper.hasChild("DrawOnGround");
